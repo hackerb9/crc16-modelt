@@ -4,12 +4,21 @@ Quickly check the ROM on any of the Model T Computers (The Kyotronic
 Sisters are: Kyocera Kyotronic 85, TRS-80 Model 100, Tandy 102, Tandy
 200, Olivetti M10, NEC PC-8201, NEC PC-8201/A, and NEC PC-8300.)
 
-The main program people will likely want is [CRC16.CO](CRC16.CO),
-which uses a lookup table for speed at the expense of using more
-bytes. It uses [an 8080 assembly][crc16-8080] routine to calculates
-the 16-bit Cyclic Redundancy Check.
+The main program folks will likely want is [CRC16.CO](CRC16.CO), which
+uses a lookup table for speed at the expense of taking more bytes. It
+uses [an 8080 assembly][crc16-8080] routine to calculates the 16-bit
+Cyclic Redundancy Check.
 
 [crc16-8080]: https://github.com/hackerb9/crc16-8080
+
+## Usage
+
+* In BASIC run `CLEAR 256, 60000`. 
+* Run CRC16.CO from the Menu by selecting it.
+
+Alternately, one may use the crc16 binary program to calculate the
+same checksum on a PC or UNIX host. 
+
 
 ## Model T driver
 
