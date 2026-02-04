@@ -20,8 +20,9 @@ programs include that driver file and the appropriate CRC16 backend.
 Download the .CO file if you simply want to run a check on your Model
 T to see if you have a standard ROM installed.
 
-Note that all three version have the same output. The only difference
-is in the file size and speed of execution.
+There are two other wrapper programs available that have the same
+functionality. The only difference is in the file size and speed of
+execution.
 
 | Source                           | .CO executable         | Compiled Size | Features   |
 |----------------------------------|------------------------|--------------:|------------|
