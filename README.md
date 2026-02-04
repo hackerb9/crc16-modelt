@@ -43,25 +43,6 @@ execution.
 [tbitwise]: modelt-bitwise.asm
 [tpushpop]: modelt-pushpop.asm
 
-## Faster, Better, Stronger (pick one)
-
-There are three versions available:
-
-| Version                      | Compiled Size |     Speed | Features   |
-|------------------------------|--------------:|----------:|------------|
-| [CRC-bytewise.asm][bytewise] |     548 bytes | 4 seconds | Fastest    |
-| [CRC-bitwise.asm][bitwise]   |     110 bytes | 6 seconds | Reasonable |
-| [CRC-pushpop.asm][pushpop]   |      34 bytes | 9 seconds | Smallest   |
-
-* "Compiled size" is for the CRC-16 routine and does not count the
-  Model T example driver (see below).
-* "Speed" is time to calculate the CRC-16 of the 72K ROM on
-  a Tandy 200 (8085 @2.46 MHz).
-
-[bytewise]: crc16-bytewise.asm
-[bitwise]: crc16-bitwise.asm
-[pushpop]: crc16-pushpop.asm
-
 ## Specifics
 
 There are actually many different flavors of CRC-16. This implements
