@@ -1,4 +1,4 @@
-# CRC-16 for Intel 8080
+# CRC-16 for the TRS-80 Model 100 and Kindred
 
 This assembly routine calculates the 16-bit Cyclic Redundancy Check on
 an Intel 8080 processor. It will also run on the 8085 or Z80.
@@ -59,6 +59,10 @@ is in the file size and speed of execution.
 | [modelt-bytewise.asm][tbytewise] | [CRC16.CO](CRC16.CO)   |     807 bytes | Fastest    |
 | [modelt-bitwise.asm][tbitwise]   | [CRCBIT.CO](CRCBIT.CO) |     369 bytes | Reasonable |
 | [modelt-pushpop.asm][tpushpop]   | [CRCPSH.CO](CRCPSH.CO) |     293 bytes | Smallest   |
+
+[tbytewise]: modelt-bytewise.asm
+[tbitwise]: modelt-bitwise.asm
+[modelt-pushpop.asm]: modelt-pushpop.asm
 
 ## Table of ROM checksums
 
