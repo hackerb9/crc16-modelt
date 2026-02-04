@@ -1,37 +1,60 @@
-# CRC-16 for the TRS-80 Model 100 and Kindred
+# CRC-16 ROM check for the TRS-80 Model 100 and Kindred
 
-Quickly check the ROM on any of the Model T Computers (The Kyotronic
-Sisters are: Kyocera Kyotronic 85, TRS-80 Model 100, Tandy 102, Tandy
-200, Olivetti M10, NEC PC-8201, NEC PC-8201/A, and NEC PC-8300.)
+Quickly check the ROM on any of computer related to the TRS-80
+Model 100. (The Kyotronic Sisters are: Kyocera Kyotronic 85, TRS-80
+Model 100, Tandy 102, Tandy 200, Olivetti M10, NEC PC-8201, NEC
+PC-8201A, and NEC PC-8300.)
 
-The main program folks will likely want is [CRC16.CO](CRC16.CO), which
-uses a lookup table for speed at the expense of taking more bytes. It
-uses [an 8080 assembly][crc16-8080] routine to calculates the 16-bit
-Cyclic Redundancy Check.
+The program [CRC16.CO](CRC16.CO) uses [an 8080 assembly][crc16-8080]
+routine to calculates the 16-bit Cyclic Redundancy Check.
+
+, which uses
+a lookup table for speed at the expense of taking more bytes. 
 
 [crc16-8080]: https://github.com/hackerb9/crc16-8080
 
 ## Usage
 
+Use the [CRC16.CO](CRC16.CO) file if you simply want to run a check on
+your Model T to see if you have a standard ROM installed.
+
+* Download [CRC16.CO](CRC16.CO) to your device. 
 * In BASIC run `CLEAR 256, 60000`. 
-* Run CRC16.CO from the Menu by selecting it.
+* Run CRC16.CO from the Menu by selecting it and pressing Enter.
 
-Alternately, one may use the crc16 binary program to calculate the
-same checksum on a PC or UNIX host. 
+You will be shown a checksum which can be looked up in the table
+below.
 
+## Related
 
-## Model T driver
+See below for a C program which can calculate the same checksum on a
+PC or UNIX host.
 
-The main Model T driver program in
-[modelt-driver.asm](modelt-driver.asm) calls the CRC16 routine to
-checksum the ROM on any of the Kyotronic Kin. The following wrapper
-programs include that driver file and the appropriate CRC16 backend.
-Download the .CO file if you simply want to run a check on your Model
-T to see if you have a standard ROM installed.
+If you wish to use just the CRC-16 routine in your own program, see
+[crc16-8080][crc16-8080].
+
+## Source code
+
+The main driver program in [modelt-driver.asm](modelt-driver.asm)
+identifies the type of "Model T" computer — the Model 100 or any of
+the Kyotronic kin — that it is being run on so that the correct ROM
+size and bank selection can be done. If a computer has multiple system
+ROMs, they are concatenated as if they were one long file and a single
+checksum is shown. The Option ROM is currently not examined. The
+driver program calls the `CRC16` and `CRC16_CONTINUE` routines from
+[crc16-8080][crc16-8080].
+
+The program "CRC16.CO" is created from the file
+[modelt-bytewise.asm][tbytewise], which is a wrapper that sets up the
+necessary .CO file header and INCLUDEs both
+[modelt-driver.asm](modelt-driver.asm) and
+[crc16-bytewise.asm](crc16-bytewise.asm).
+
+### Alternate .CO programs
 
 There are two other wrapper programs available that have the same
-functionality. The only difference is in the file size and speed of
-execution.
+functionality and simply include alternative CRC16 implementations.
+The only difference is in the file size and speed of execution.
 
 | Source                           | .CO executable         | Compiled Size | Features   |
 |----------------------------------|------------------------|--------------:|------------|
@@ -43,11 +66,19 @@ execution.
 [tbitwise]: modelt-bitwise.asm
 [tpushpop]: modelt-pushpop.asm
 
-## Specifics
+## Specifics: CRC16/XMODEM
 
-There are actually many different flavors of CRC-16. This implements
-the XMODEM version of CRC-16. In particular, it uses the polynomial
-0x1021 (0001 0000 0010 0001) with an initial value of zero.
+There is not one "CRC-16" algorithm, but actually many different
+flavors based on parameter choices. This implements the XMODEM variant
+of CRC-16. In particular, it uses the polynomial 0x1021 (0001 0000
+0010 0001) with an initial value of zero and no reflections.
+
+For more information on how Cyclic Redundancy Checks work, I found
+most helpful Ross Williams' "Painless Guide", aka ["Everything you
+wanted to know about CRC algorithms, but were afraid to ask for fear
+that errors in your understanding might be
+detected"](adjunct/crc_v3.txt).
+
 
 ## Table of ROM checksums
 
@@ -73,29 +104,26 @@ issue.
 
 Modified ROMs, for example with Y2K patches, will have different
 checksums than the original. The Virtual T emulator can also patch the
-ROMs to show the Virtual T version on the Menu. You may also see a ROM
-with both patches. See also the directory of sample ROMs downloaded
-from tandy.wiki in [ROMs](ROMs).
+ROMs to show the Virtual T version on the Menu. See also the directory
+of sample ROMs downloaded from tandy.wiki in [ROMs](ROMs).
 
-|            Machine Name | ROM size | Y2K patched | Virtual T | Y2K + Virtual T |
-|------------------------:|---------:|:-----------:|:---------:|:---------------:|
-| Kyocera Kyotronic KC-85 |      32K | 64A8        | E71C      |                 |
-|        TRS-80 Model 100 |      32K | F6C1        |           | 554D            |
-|          Tandy 102 (US) |      32K | DE5B        |           | 7DD7            |
-|          Tandy 102 (UK) |      32K | 9EC4        |           | 7DD7            |
-|               Tandy 200 |      72K | 9534        |           | 0665            |
-|            NEC PC-8201A |      32K | 8CA0        |           |                 |
-|             NEC PC-8300 |     128K | E3A9        |           |                 |
-|   Olivetti M10 (Europe) |      32K | 1B13        |           | B753            |
-|       Olivetti M10 (US) |      32K | 5E44        |           |                 |
+|          Machine Name | ROM size | Y2K patched | Virtual T | Y2K + Virtual T |
+|----------------------:|---------:|:-----------:|:---------:|:---------------:|
+|  Kyocera Kyotronic 85 |      32K | 64A8        | E71C      |                 |
+|      TRS-80 Model 100 |      32K | F6C1        |           | 554D            |
+|        Tandy 102 (US) |      32K | DE5B        |           | 7DD7            |
+|        Tandy 102 (UK) |      32K | 9EC4        |           | 7DD7            |
+|             Tandy 200 |      72K | 9534        |           | 0665            |
+|          NEC PC-8201A |      32K | 8CA0        |           |                 |
+|           NEC PC-8300 |     128K | E3A9        |           |                 |
+| Olivetti M10 (Europe) |      32K | 1B13        |           | B753            |
+|     Olivetti M10 (US) |      32K | 5E44        |           |                 |
 
 ## C double-check
 
 One can run an [included C program](adjunct/crc16.c) to double-check
 that the assembly language is getting the right answer. The underlying
-C code came from Lammert Bies's excellent web page:
-https://www.lammertbies.nl/comm/info/crc-calculation .
-
+C code came from [crcany](https://github.com/madler/crcany).
 
 <details><summary>CRC16 checksums for the various ROMs</summary><ul>
 
@@ -127,13 +155,15 @@ F6C1    ROMs/TRS-80_Model_100.y2k.bin
 
 </ul></details>
 
-## Determining hardware architecture via PEEK of ROM
+## ID'ing machines via PEEK of ROM locations
 
-Distinguishing the different Kyocera Kyotronic Sisters by ROM values
-requires at least two PEEKs. The following peeks have (so far) worked
-properly regardless of ROM patches, such as Y2K or Virtual T.
+Distinguishing the different Kyotronic Sisters can be done by
+examining ROM values at certain locations. The following two
+addresses, PEEK(1) and PEEK(21538), have so far worked properly to
+identify hardware architectures regardless of ROM patches, such as Y2K
+or Virtual T.
 
-<details><summary>Output from ./crc16 ROMs/*</summary><ul>
+<details><summary>Output from <code>./crc16 ROMs/*</code></summary><ul>
 
 | PEEK(1) | (21358) | ROM FILE                             |
 |--------:|--------:|--------------------------------------|
@@ -161,3 +191,6 @@ properly regardless of ROM patches, such as Y2K or Virtual T.
 
 </ul></details>
 
+
+To do: Consider instead checksumming the first 32K and using that to
+identify the machine and what further ROMs need to be checksummed.
