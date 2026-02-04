@@ -171,13 +171,3 @@ properly regardless of ROM patches, such as Y2K or Virtual T.
 
 </ul></details>
 
-
-|  Model | PEEK(1) | PEEK(21358) |
-|-------:|--------:|------------:|
-|   kc85 |     225 |         167 |
-|    m10 |      35 |          56 |
-|   m100 |      51 |         230 |
-|   m102 |     167 |         230 |
-|   t200 |     171 |          83 |
-| pc8201 |     148 |          66 |
-| pc8300 |     148 |          64 |
