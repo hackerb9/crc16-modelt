@@ -8,9 +8,6 @@ PC-8201A, and NEC PC-8300.)
 The program [CRC16.CO](CRC16.CO) uses [an 8080 assembly][crc16-8080]
 routine to calculates the 16-bit Cyclic Redundancy Check.
 
-, which uses
-a lookup table for speed at the expense of taking more bytes. 
-
 [crc16-8080]: https://github.com/hackerb9/crc16-8080
 
 ## Usage
