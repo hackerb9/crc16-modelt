@@ -177,9 +177,9 @@ empirically by hackerb9's [romcmp.py](ROMs/romcmp.py) program to
 distinguish the hardware architectures while being insensitive to
 minor patches.
 
-<details><summary>Output from <code><a href="ROMs/id.py">id.py</a></code></summary><ul>
+<!-- details><summary>Output from <code><a href="ROMs/id.py">id.py</a></code></summary><ul -->
 
-<a href="ROMs/id.py">id.py</a>
+Output from <a href="ROMs/id.py">id.py</a>.
 
 | PEEK(1) | (21358) | ROM FILE                             |
 |--------:|--------:|--------------------------------------|
@@ -205,7 +205,7 @@ minor patches.
 |     225 |     194 | KC-85.orig.bin                       |
 |     225 |     194 | KC-85.y2k.bin                        |
 
-</ul></details>
+<!-- /ul></details -->
 
 Of course, as more ROMs are catalogued, it is possible these addresses
 will be insufficient. The list above is correct as of February 2026.
