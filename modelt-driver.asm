@@ -11,28 +11,21 @@
 
 ;;; For machine detection, currently two memory addresses are checked:
 
-
-
-	
 	.8080			; Hint to asmx
 
-CHGET	EQU	12CBH		; Model 100/102 wait for key
-CH200	EQU	12F7H		; Model 200 wait for key
-CHNEC	EQU	174DH		; NEC PC-8201 & 8300
+CHGET	EQU	12CBH		; wait for key - Model 100/102
+CH200	EQU	12F7H		; wait for key - Tandy 200
+CHNEC	EQU	174DH		; wait for key - NEC PC-8201 & 8300
 
-;PRT0	EQU	11A2H		; Model 100 print string up to NULL
-; Note: PRT0 routine not used so this will work on any device
 ;LCD	EQU	4B44H		; Model 100 print to LCD screen
 ; Note: LCD routine not used as RST 4 works on all Kyotronic Sisters
+;PRT0	EQU	11A2H		; Model 100 print string up to NULL
+; Note: PRT0 routine implemented below so this will work on any device
 
 	LXI H, CRCIS		; Print "CRC-16 is "
-PRT0:	MOV A, M
-	ANA A
-	JZ PRT0DONE
-	RST 4
-	INX H
-	JMP PRT0
-PRT0DONE:
+	CALL PRT0
+
+	;; PEEK(1) and PEEK(21358) give a quick ID of machine architecture.
 
 	;; Tandy 200 if peek(1) == 171, ROM is 72K (40K + 32K).
 	LXI D, 1
@@ -40,6 +33,7 @@ PRT0DONE:
 	CPI 171			; T200
 	JZ TANDY200
 
+	;; PC8300 if peek(21358) == 235, ROM is 128K (4x 32K).
 	LXI D, 21358
 	LDAX D
 	CPI 235			; PC8300
@@ -114,52 +108,15 @@ PC8300_BANK_LOOP:
 
 ALLDONE:
 	;;; All done with entire buffer. Result is in HL.
-	XCHG			; Swap HL and DE for printing
+	;; Print HL as hexadecimal nybbles
+	MOV A, H
+	CALL PRTHEX
+	MOV A, L
+	CALL PRTHEX
+	CALL PRTNL
 
-	;; Print DE as hexadecimal nybbles
-	LXI H, HEXITS
-	MOV A, D
-	ANI F0H
-	RAR
-	RAR
-	RAR
-	RAR
-	MVI B, 0
-	MOV C, A
-	DAD B
-	MOV A, M
-	RST 4
-
-	LXI H, HEXITS
-	MOV A, D
-	ANI 0FH
-	MVI B, 0
-	MOV C, A
-	DAD B
-	MOV A, M
-	RST 4
-
-	LXI H, HEXITS
-	MOV A, E
-	ANI F0H
-	RAR
-	RAR
-	RAR
-	RAR
-	MVI B, 0
-	MOV C, A
-	DAD B
-	MOV A, M
-	RST 4
-
-	LXI H, HEXITS
-	MOV A, E
-	ANI 0FH
-	MVI B, 0
-	MOV C, A
-	DAD B
-	MOV A, M
-	RST 4
+	;; Look up HL in ROM table and print any match
+	CALL PRTROMLOOKUP
 
 	;; Do we know how to wait for a key?
 	LXI D, 1
@@ -199,7 +156,102 @@ WAITNEC:
 	CALL CHNEC
 	RET
 
+;;; Print a null-terminated string pointed to by HL.
+;;; Modifes A and HL
+PRT0:	
+	MOV A, M
+	ANA A
+	JZ PRT0DONE
+	RST 4
+	INX H
+	JMP PRT0
+PRT0DONE:
+	RET
+
+;;; Print newline (carriage return + line feed)
+;;; Modifes A
+PRTNL:	
+	MVI A, 13
+	RST 4
+	MVI A, 10
+	RST 4
+	RET
+
+;;; Given a byte in A, print it as two hexits. 
+PRTHEX:	
+	PUSH D
+	MOV D, A
+	ANI F0H
+	RAR
+	RAR
+	RAR
+	RAR
+	CALL PRTNYBHEX
+	MOV A, D
+	CALL PRTNYBHEX
+	POP D
+	RET
+
+;;; Print the low nybble of A as hexadecimal
+PRTNYBHEX:
+	PUSH B
+	PUSH H
+	ANI 0FH
+	MVI B, 0
+	MOV C, A
+	LXI H, HEXITS
+	DAD B
+	MOV A, M
+	RST 4
+	POP H
+	POP B
+	RET
+
+;;; Look up HL as the CRC in the ROM table and print the associated string.
+;;; ROM table is alternating 16-bit words: CRC0, STR0, CRC1, STR1, CRC2, STR2, 0000.
+;;; Modifies A.
+PRTROMLOOKUP:
+	PUSH H
+	PUSH B
+	PUSH D
+	XCHG			; Put CRC into DE, free up HL
+	LXI H, ROMTABLE
+LOOKUPLOOP:
+	MOV C, M		; Read the bytes at address HL, HL+1 and put them in BC
+	INX H
+	MOV B, M
+	INX H
+	MOV A, B
+	ORA C
+	JZ LOOKUPNOTFOUND	; Are both B and C zero? End of list.
+	MOV A, B
+	CMP D			; Does BC == DE?
+	JNZ NOPENOPE
+	MOV A, C
+	CMP E
+	JZ  FOUNDMATCH		; We have a match!
+NOPENOPE:	
+	INX H
+	INX H
+	JMP LOOKUPLOOP
+	
+LOOKUPNOTFOUND:	
+FOUNDMATCH:
+	;; HL points to an address which points to a string. Print it.
+	MOV E, M
+	INX H
+	MOV D, M
+	XCHG			; Swap HL and DE
+	CALL PRT0		; Print HL
+	CALL PRTNL
+	POP D
+	POP B
+	POP H
+	RET
 
 CRCIS:	DB "CRC-16 = ", 0
 HEXITS:	DB "0123456789ABCDEF"
 
+	include "romtable.asm"	; Mapping from CRC16 to ROM names
+
+	
