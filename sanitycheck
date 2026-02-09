@@ -1,0 +1,22 @@
+#!/bin/bash
+limit=61104
+file="$1"
+org="$2"
+size=$(stat -c %s "$file")
+
+if (( $size == 0 )); then
+    echo "Error: Size of $file is zero" >&2
+    exit 1
+fi
+
+if [ -z "$org" ]; then
+    org=$( od -d -N2 "$file" | head -1 | cut -d ' ' -f2 )
+#    echo "ORG is $org"
+fi
+
+if (( ($size + $org) > $limit )); then
+    echo "Error for $file!" >&2 
+    echo -e "\tORG + filesize exceeds maxram limits!" >&2 
+    echo -e "\tORG=$org + Filesize=$size and Tandy 200 MAXRAM is $limit." >&2 
+    exit 1
+fi
