@@ -34,7 +34,7 @@ CRCPSH.CO: modelt-pushpop.asm modelt-driver.asm crc16-pushpop.asm romtable.asm
 	asmx -e -w -b$(ORG) modelt-pushpop.asm && mv modelt-pushpop.asm.bin CRCPSH.CO
 	cp -p CRCPSH.CO ../VirtualT/ || true
 
-romtable.asm: mkromtable.awk ROMs/*
+romtable.asm: mkromtable.awk ROMs/* adjunct/extrasums.txt
 	./mkromtable.awk > romtable.asm
 
 .PHONY: sanity
