@@ -1,0 +1,7 @@
+E71C	Kyocera_Kyotronic_85_(Virtual_T_1.7,_no_Y2K)
+554D	TRS-80_Model_100_(Virtual-T_1.7)
+7DD7	Tandy_102_(US)_(Virtual-T_1.7)
+0665	Tandy_200_(Virtual-T_1.7)
+91C7	NEC_PC-8201A_(Virtual-T_1.7)
+D4BA	NEC_PC-8300_(Virtual-T_1.7))
+B753	Olivetti_M10_(Europe)_(Virtual-T_1.7)
