@@ -107,17 +107,17 @@ of sample ROMs (mirrored from [tandy.wiki][tandy.wiki]) in
 
 [tandy.wiki]: http://tandy.wiki/Model_T_System_ROMs "List of system ROMs, the builtin software on a chip"
 
-|          Machine Name | ROM size | Y2K patched | Virtual T | Y2K + Virtual T |
-|----------------------:|---------:|:-----------:|:---------:|:---------------:|
-|  Kyocera Kyotronic 85 |      32K | 64A8        | E71C      |                 |
-|      TRS-80 Model 100 |      32K | F6C1        |           | 554D            |
-|        Tandy 102 (US) |      32K | DE5B        |           | 7DD7            |
-|        Tandy 102 (UK) |      32K | 9EC4        |           | 7DD7            |
-|             Tandy 200 |      72K | 9534        |           | 0665            |
-|          NEC PC-8201A |      32K | 8CA0        |           |                 |
-|           NEC PC-8300 |     128K | E3A9        |           |                 |
-| Olivetti M10 (Europe) |      32K | 1B13        |           | B753            |
-|     Olivetti M10 (US) |      32K | 5E44        |           |                 |
+|          Machine Name | ROM size | Y2K patched | Virtual T 1.7 | Y2K + Virtual T 1.7 |
+|----------------------:|---------:|:-----------:|:-------------:|:-------------------:|
+|  Kyocera Kyotronic 85 |      32K | 64A8        | E71C          |                     |
+|      TRS-80 Model 100 |      32K | F6C1        |               | 554D                |
+|        Tandy 102 (US) |      32K | DE5B        |               | 7DD7                |
+|        Tandy 102 (UK) |      32K | 9EC4        |               |                     |
+|             Tandy 200 |      72K | 9534        |               | 0665                |
+|          NEC PC-8201A |      32K | 8CA0        |               | 91C7                |
+|           NEC PC-8300 |     128K | E3A9        |               |                     |
+| Olivetti M10 (Europe) |      32K | 1B13        |               | B753                |
+|     Olivetti M10 (US) |      32K | 5E44        |               |                     |
 
 ## CRC-16 in C
 
