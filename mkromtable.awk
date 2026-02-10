@@ -22,6 +22,7 @@ BEGIN {
     nm=$2;
     gsub(/[^A-Za-z0-9]/, "_", $2);
     gsub(/_+/, "_", $2);
+    gsub(/^_|_$/, "", $2);
     ident[$1]=$2;
     if (name[ident[$1]] != "") {
 	printf("\aError! Two files have the same identifier: %s\n", ident[$1]) >"/dev/stderr";
