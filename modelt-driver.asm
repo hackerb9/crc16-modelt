@@ -28,11 +28,12 @@ CHNEC	EQU	174DH		; wait for key - NEC PC-8201 & 8300
 	;; lookup table as it only needs to contain variations (such
 	;; as "North America", "Y2K patched" or "Virtual-T 7.1").
 	LXI H, 1
-	MOV B, M		; B=PEEK(1)
+	MOV E, M		; D=PEEK(1)
 	LXI H, 21358
-	MOV C, M		; C=PEEK(21358)
+	MOV D, M		; E=PEEK(21358)
 	LXI H, QIDTABLE
 	CALL PRTLOOKUP		; Print make and model
+	CALL PRTNL
 
 	;; Model-Ts have 3 different ROM layouts: T200, PC8300, and all else.
 	;; Tandy 200 if peek(1) == 171, ROM is 72K (40K + 32K).
@@ -115,11 +116,7 @@ PC8300_BANK_LOOP:
 
 
 ALLDONE:
-	;;; All done with entire buffer. Result is in HL.
-	MOV B, H		; Look up CRC in table and print match
-	MOV C, L
-	CALL PRTCRCLOOKUP
-
+	;;; All done with entire buffer. Checksum result is in HL.
 	XCHG			; DE=HL
 	LXI H, CRCIS		; Print "CRC-16 is "
 	CALL PRT0
@@ -131,6 +128,10 @@ ALLDONE:
 	MOV A, L
 	CALL PRTHEX
 	CALL PRTNL
+
+	XCHG
+	CALL PRTCRCLOOKUP	; Look up CRC in table and print match
+	XCHG
 
 	;; Do we know how to wait for a key?
 	LXI D, 1
@@ -233,10 +234,10 @@ PRTCRCLOOKUP:
 	POP H
 	RET
 
-;;; Look up BC in the table at HL and print the associated string (null terminated).
+;;; Look up DE in the table at HL and print the associated string (null terminated).
 ;;; Table is alternating 16-bit words:  ID0, STR0,  ID1, STR1,  ID2, STR2,  0000, STRZ.
 ;;; If no match is found, STRZ is printed.
-;;; Entry: BC=key, HL=table
+;;; Entry: DE=key, HL=table
 ;;; Exit: Modifies all registers. See also PRTCRCLOOKUP.
 PRTLOOKUP:
 LOOKUPLOOP:
