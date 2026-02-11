@@ -77,7 +77,7 @@ NEC_PC_8201A_Virtual_T_1_7:              DB "NEC PC-8201A (Virtual-T 1.7)",0
 NEC_PC_8201A_y2k:                        DB "NEC PC-8201A.y2k",0
 NEC_PC_8300:                             DB "NEC PC-8300",0
 NEC_PC_8300_Beckman_E3_2:                DB "NEC PC-8300 Beckman-E3.2",0
-NEC_PC_8300_Virtual_T_1_7:               DB "NEC PC-8300 (Virtual-T 1.7))",0
+NEC_PC_8300_Virtual_T_1_7:               DB "NEC PC-8300 (Virtual-T 1.7)",0
 NEC_PC_8300_y2k:                         DB "NEC PC-8300.y2k",0
 Olivetti_M10_Europe_Virtual_T_1_7:       DB "Olivetti M10 (Europe) (Virtual-T 1.7)",0
 TRS_80_Model_100:                        DB "TRS-80 Model 100",0
