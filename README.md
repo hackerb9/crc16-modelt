@@ -190,18 +190,18 @@ Output from <a href="ROMs/id.py">id.py</a>.
 |      72 |     209 | NEC_PC-8300_Beckman-E3.2.bin         |
 |     125 |     205 | M10_System_ROM_NorthAmerica.orig.bin |
 |     125 |     205 | M10_System_ROM_NorthAmerica.y2k.bin  |
-|     144 |     254 | TANDY_600_BASIC.bin                  |
+|     144 |     254 | Tandy_600_BASIC.bin                  |
 |     148 |     101 | NEC_PC-8201A.orig.bin                |
 |     148 |     101 | NEC_PC-8201A.y2k.bin                 |
 |     148 |     235 | NEC_PC-8300.orig.bin                 |
 |     148 |     235 | NEC_PC-8300.y2k.bin                  |
-|     167 |      83 | TANDY_Model_102.us.orig.bin          |
-|     167 |      83 | TANDY_Model_102.us.y2k.bin           |
-|     167 |      96 | TANDY_Model_102.uk.orig.bin          |
-|     167 |      96 | TANDY_Model_102.uk.y2k.bin           |
+|     167 |      83 | Tandy_102.us.orig.bin                |
+|     167 |      83 | Tandy_102.us.y2k.bin                 |
+|     167 |      96 | Tandy_102.uk.orig.bin                |
+|     167 |      96 | Tandy_102.uk.y2k.bin                 |
 |     167 |     123 | Televerket-Modell100.orig.bin        |
-|     171 |       9 | TANDY_Model_200.M15.orig.bin         |
-|     171 |       9 | TANDY_Model_200.M15.y2k.bin          |
+|     171 |       9 | Tandy_200.M15.orig.bin               |
+|     171 |       9 | Tandy_200.M15.y2k.bin                |
 |     225 |     194 | KC-85.orig.bin                       |
 |     225 |     194 | KC-85.y2k.bin                        |
 
