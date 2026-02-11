@@ -1,0 +1,79 @@
+Where should the assembly language be ORG'd so that it can be as large
+as possible and still run on any Model T without changes? 
+
+Two copies must be stored: One in the filesystem and one for RUNM (or LOADM).
+
+LOADM and RUNM put a copy starting at HIMEM. If it is too long and
+exceeds MAXRAM, bad things will happen and you will *not* be warned.
+
+After LOADM, the .CO file can be deleted to free up RAM, but machine
+language programs are still limited to half the available RAM. 
+
+The assembly program's ORG is HIMEM. The binary file's length must be
+less than MAXRAM minus HIMEM.
+
+Question: HIMEM's address appears to be the first byte reserved.
+	  Is MAXRAM the first byte UNreserved? Or the last byte reserved?
+	  Former makes more sense so that HIMEM=MAXRAM means zero bytes.
+
+SMALLEST RAM
+8K Model 100: Lowest HIMEM that can be reserved with CLEAR is 58044,
+   	      but only if string space is zero (CLEAR 0, 58044) and
+   	      there are no files.
+
+MINIMUM MAXRAM
+Tandy 200:    MAXRAM is 61104
+
+
+Thus... the largest cross-platform machine language file would be:
+
+	(61104-58044)/2 = 1530 bytes
+
+	[Give or take. the LOADM copy uses six less bytes and filesystem adds
+	 a few more bytes in the header of the file.]
+
+So, the ideal address for ORG / HIMEM is approximately 59574 (E8B6).
+
+
+======================================================================
+
+Two reasons the CRC-16 .CO file is so large:
+
+	* The bytewise algorithm is the default because it is fastest,
+          but it does that by including a 256 byte precomputed table.
+
+	* The strings for mapping the checksum to a Model T's make and
+	  model get long very quickly and there are many of them due to
+	  variants (Y2K, Virtual-T)
+
+Possible solutions:
+
+	1. Switch to the bitwise algorithm which is quite a bit
+	   smaller and still tolerably fast.
+
+	2. Keep the detailed information in a separate file. A text
+	   file will not need to be duplicated into high memory via
+	   LOADM. Does require file manipulation and parsing, which
+	   could outweigh the space saving.
+	   
+	   Having multiple files is messy for distribution, things get
+	   separated, but it does have the advantage that the program
+	   could be quickly updated with new checksums. Perhaps a
+	   hybrid approach could work? It'd have minimal functionality
+	   standalone, but if a file exists, it uses it for additional
+	   information. 
+
+	3. Use the Quick ID PEEKs to print out the make and model and
+           use the CRC to print the specific variation.
+
+	  a. Easiest is to allow free form variant text as that's
+             already working.
+
+	  b. Alternately, since it'll be extremely repetitive, use a
+	     16-bit field with each bit indicating a variant. (For
+             example, a file might be modded for both Y2K and Virtual-T).
+
+	     * If a bit field is used, optional freeform text may still
+               be useful if we wish to show the Virtual T version number.
+               (Each version has a different CRC).
+
