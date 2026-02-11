@@ -23,6 +23,8 @@ endaddr=$(( size + org ))
 if (( endaddr > limit )); then
     echo "Error for $file!" >&2 
     echo -e "\tORG + filesize exceeds maxram limits by $((endaddr-limit)) bytes!" >&2 
-    echo -e "\t$org + $size = $endaddr > $limit (MAXRAM of T200)." >&2 
+    echo -e "\t$org + $size = $endaddr > $limit (MAXRAM of T200).\n" >&2 
     exit 1
 fi
+
+echo "OK"
