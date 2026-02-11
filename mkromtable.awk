@@ -41,7 +41,7 @@ ENDFILE {
     for (i in ident) {
 	printf("%-40s DB %s,0\n", gensub(/$/, ":", "g", ident[i]), name[ident[i]]);
     }
-    printf("%-40s DB " dq "%s" dq ",0\n", "ROM_NOT_RECOGNIZED",
-	   "ROM not recognized. Please report at\\r\\ngithub.com/hackerb9/crc16-modelt");
+    printf("%-40s DB " dq "%s" dq ",0\n", "ROM_NOT_RECOGNIZED:",
+	   "Unknown ROM. Please report at\\r\\ngithub.com/hackerb9/crc16-modelt");
 }
 '
