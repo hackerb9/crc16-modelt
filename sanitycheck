@@ -1,6 +1,11 @@
 #!/bin/bash
-limit=61104
-file="$1"
+
+# The machine language program has to fit between ORG and MAXRAM in
+# the space reserved in RAM using CLEAR 256, _ORG_. 
+
+# Tandy 200 has lowest MAXRAM at 61104. 
+limit=$((61104))
+file=${1:-CRC16.CO}
 org="$2"
 size=$(stat -c %s "$file")
 
@@ -14,9 +19,10 @@ if [ -z "$org" ]; then
 #    echo "ORG is $org"
 fi
 
-if (( ($size + $org) > $limit )); then
+endaddr=$(( size + org ))
+if (( endaddr > limit )); then
     echo "Error for $file!" >&2 
-    echo -e "\tORG + filesize exceeds maxram limits!" >&2 
-    echo -e "\tORG=$org + Filesize=$size and Tandy 200 MAXRAM is $limit." >&2 
+    echo -e "\tORG + filesize exceeds maxram limits by $((endaddr-limit)) bytes!" >&2 
+    echo -e "\t$org + $size = $endaddr > $limit (MAXRAM of T200)." >&2 
     exit 1
 fi
