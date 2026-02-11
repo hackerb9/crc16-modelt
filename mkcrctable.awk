@@ -39,6 +39,7 @@ BEGIN {
 	exit(1);
     }
     gsub(/\.bin$/, "", nm);
+    gsub(/[._+]orig$/, "", nm);
     gsub(/_/, " ", nm);
     name[label[$1]] = dq nm dq;		# Save for defining labels later.
     print "\tDW " $1 "H";		# CRC value as 16-bits
