@@ -15,12 +15,15 @@ routine to calculates the 16-bit Cyclic Redundancy Check.
 Use the [CRC16.CO](CRC16.CO) file if you simply want to run a check on
 your Model T to see if you have a standard ROM installed.
 
+* In BASIC run `CLEAR 256, 59595`. 
 * Download [CRC16.CO](CRC16.CO) to your device. 
-* In BASIC run `CLEAR 256, 60000`. 
 * Run CRC16.CO from the Menu by selecting it and pressing Enter.
 
-You will be shown a checksum which can be looked up in the table
-below.
+If your Model T is recognized using a quick id check (see below), the 
+machine's name will be shown. The CRC16 checksum will be shown and the
+ROM variant will be looked up in the table below. If your variant is
+not recognized, you'll be encouraged to create a new bug report so
+your ROM can be added to the list. 
 
 ## Related
 
@@ -55,9 +58,9 @@ The only difference is in the file size and speed of execution.
 
 | Source                           | .CO executable         | Compiled Size | Features   |
 |----------------------------------|------------------------|--------------:|------------|
-| [modelt-bytewise.asm][tbytewise] | [CRC16.CO](CRC16.CO)   |     807 bytes | Fastest    |
-| [modelt-bitwise.asm][tbitwise]   | [CRCBIT.CO](CRCBIT.CO) |     369 bytes | Reasonable |
-| [modelt-pushpop.asm][tpushpop]   | [CRCPSH.CO](CRCPSH.CO) |     293 bytes | Smallest   |
+| [modelt-bytewise.asm][tbytewise] | [CRC16.CO](CRC16.CO)   |    1486 bytes | Fastest    |
+| [modelt-bitwise.asm][tbitwise]   | [CRCBIT.CO](CRCBIT.CO) |    1048 bytes | Reasonable |
+| [modelt-pushpop.asm][tpushpop]   | [CRCPSH.CO](CRCPSH.CO) |     972 bytes | Smallest   |
 
 [tbytewise]: modelt-bytewise.asm
 [tbitwise]: modelt-bitwise.asm
@@ -81,7 +84,9 @@ detected"](adjunct/crc_v3.txt).
 
 Here are the CRC-16 values for all of the original Model T ROMs which
 have been reported so far. If you find one not listed, please open an
-issue.
+issue so it can be added to the list. Ideally, include a copy of your
+ROM, but at a minimum, please include the calculated CRC and a name to
+call your variation.
 
 | Machine Name                   | ROM size | CRC-16 |
 |:-------------------------------|---------:|:------:|
