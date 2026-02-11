@@ -1,5 +1,5 @@
 all:  crc16-bytewise.bin crc16-bitwise.bin crc16-pushpop.bin \
-	CRC16.CO CRCBIT.CO CRCPSH.CO crc16 
+	CRC16.CO CRCBIT.CO CRCPSH.CO crc16 sanity
 
 # ORG is the address where the programs are assembled to load.
 # * Can't be too low or 8K machines can't load the file. (About 59500 minimum).
@@ -34,8 +34,12 @@ CRCPSH.CO: modelt-pushpop.asm modelt-driver.asm crc16-pushpop.asm romtable.asm
 	asmx -e -w -b$(ORG) modelt-pushpop.asm && mv modelt-pushpop.asm.bin CRCPSH.CO
 	cp -p CRCPSH.CO ../VirtualT/ || true
 
-romtable.asm: mkromtable.awk ROMs/* adjunct/extrasums.txt
+romtable.asm: mkromtable.awk crc16 ROMs/* ROMs/ adjunct/extrasums.txt
 	./mkromtable.awk > romtable.asm
+
+adjunct/extrasums.txt:
+	touch adjunct/extrasums.txt
+
 
 .PHONY: sanity
 sanity: CRCBIT.CO CRC16.CO CRCPSH.CO
