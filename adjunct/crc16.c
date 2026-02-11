@@ -1,6 +1,8 @@
 #include "crc16xmodem.h"
 #include <err.h>
 #include <stdio.h>
+#include <sys/stat.h>
+
 
 int debug = 0;
 
@@ -11,6 +13,12 @@ int main(int argc, char *argv[]) {
 
     while (*++argv) {
 
+      struct stat statbuf;
+      stat(*argv, &statbuf);
+      if ( (statbuf.st_mode&S_IFMT) == S_IFDIR) {
+	if (debug) printf("Skipping directory %s\n", *argv);
+	continue;
+      }
       if (debug) printf("Opening %s\n", *argv);
       FILE *fp = fopen(*argv, "r");
       if (!fp) {
