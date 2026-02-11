@@ -22,20 +22,20 @@ crc16-pushpop.bin: crc16-pushpop.asm
 
 
 # These are the executables for the Kyotronic Sisters (Model T computers)
-CRC16.CO: modelt-bytewise.asm modelt-driver.asm crc16-bytewise.asm romtable.asm
+CRC16.CO: modelt-bytewise.asm modelt-driver.asm crc16-bytewise.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-bytewise.asm && mv modelt-bytewise.asm.bin CRC16.CO
 	cp -p CRC16.CO ../VirtualT/ || true
 
-CRCBIT.CO: modelt-bitwise.asm modelt-driver.asm crc16-bitwise.asm romtable.asm
+CRCBIT.CO: modelt-bitwise.asm modelt-driver.asm crc16-bitwise.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-bitwise.asm && mv modelt-bitwise.asm.bin CRCBIT.CO
 	cp -p CRCBIT.CO ../VirtualT/ || true
 
-CRCPSH.CO: modelt-pushpop.asm modelt-driver.asm crc16-pushpop.asm romtable.asm
+CRCPSH.CO: modelt-pushpop.asm modelt-driver.asm crc16-pushpop.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-pushpop.asm && mv modelt-pushpop.asm.bin CRCPSH.CO
 	cp -p CRCPSH.CO ../VirtualT/ || true
 
-romtable.asm: mkromtable.awk crc16 ROMs/* ROMs/ adjunct/extrasums.txt
-	./mkromtable.awk > romtable.asm
+crctable.asm: mkcrctable.awk crc16 ROMs/* ROMs/ adjunct/extrasums.txt
+	./mkcrctable.awk > crctable.asm
 
 adjunct/extrasums.txt:
 	touch adjunct/extrasums.txt
@@ -56,7 +56,7 @@ crc16: adjunct/crc16xmodem.h adjunct/crc16.c
 clean:
 	rm modelt-*.lst modelt-*.bin \
 	   crc16*.bin crc16-*.lst CRC*.CO \
-	   crc16 romtable.asm \
+	   crc16 crctable.asm \
 	   *~ 2>/dev/null || true
 
 
