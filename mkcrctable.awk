@@ -39,7 +39,8 @@ BEGIN {
 	exit(1);
     }
     gsub(/\.bin$/, "", nm);
-    gsub(/[._+]orig$/, "", nm);
+#    gsub(/\.orig$/, "", nm);		# Remove "orig" unless it would leave string empty.
+    gsub(/[._+]?orig$/, "", nm);	# Remove "orig", but only if extraneous.
     gsub(/_/, " ", nm);
     name[label[$1]] = dq nm dq;		# Save for defining labels later.
     print "\tDW " $1 "H";		# CRC value as 16-bits
