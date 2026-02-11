@@ -13,20 +13,28 @@
 
 	.8080			; Hint to asmx
 
+;;; Machine architecture specific addresses
 CHGET	EQU	12CBH		; wait for key - Model 100/102
 CH200	EQU	12F7H		; wait for key - Tandy 200
 CHNEC	EQU	174DH		; wait for key - NEC PC-8201 & 8300
-
+; Note: LCD routine not used as RST 4 works on all Kyotronic Sisters.
 ;LCD	EQU	4B44H		; Model 100 print to LCD screen
-; Note: LCD routine not used as RST 4 works on all Kyotronic Sisters
+; Note: PRT0 routine implemented below to make this cross platform.
 ;PRT0	EQU	11A2H		; Model 100 print string up to NULL
-; Note: PRT0 routine implemented below so this will work on any device
 
-	LXI H, CRCIS		; Print "CRC-16 is "
-	CALL PRT0
+	;; Quick ID: PEEK(1) and PEEK(21358) uniquely identify the
+	;; machine architecture (E.g. "NEC PC-8201/A") so we use that
+	;; to print the make and model . This saves bytes in the CRC
+	;; lookup table as it only needs to contain variations (such
+	;; as "North America", "Y2K patched" or "Virtual-T 7.1").
+	LXI H, 1
+	MOV B, M		; B=PEEK(1)
+	LXI H, 21358
+	MOV C, M		; C=PEEK(21358)
+	LXI H, QIDTABLE
+	CALL PRTLOOKUP		; Print make and model
 
-	;; PEEK(1) and PEEK(21358) give a quick ID of machine architecture.
-
+	;; Model-Ts have 3 different ROM layouts: T200, PC8300, and all else.
 	;; Tandy 200 if peek(1) == 171, ROM is 72K (40K + 32K).
 	LXI D, 1
 	LDAX D
@@ -49,7 +57,7 @@ KYOTRONIC:
 	JMP ALLDONE
 
 TANDY200:	
-	;; Handle the Tandy 200 specially
+	;; Handle the Tandy 200 specially for all 72K of ROM.
 	LXI D, 0     ; DE: Address to start checksumming (0 for main ROM)
 	LXI B, A000H ; BC: Length of buffer (40K ROM for T200)
 	CALL CRC16
@@ -103,20 +111,26 @@ PC8300_BANK_LOOP:
 	;; We're back to ROM bank 00, so enable interrupts
 	EI
 
-	JMP ALLDONE
+;	JMP ALLDONE
 
 
 ALLDONE:
 	;;; All done with entire buffer. Result is in HL.
+	MOV B, H		; Look up CRC in table and print match
+	MOV C, L
+	CALL PRTCRCLOOKUP
+
+	XCHG			; DE=HL
+	LXI H, CRCIS		; Print "CRC-16 is "
+	CALL PRT0
+	XCHG			; HL=DE
+
 	;; Print HL as hexadecimal nybbles
 	MOV A, H
 	CALL PRTHEX
 	MOV A, L
 	CALL PRTHEX
 	CALL PRTNL
-
-	;; Look up HL in ROM table and print any match
-	CALL PRTROMLOOKUP
 
 	;; Do we know how to wait for a key?
 	LXI D, 1
@@ -207,15 +221,24 @@ PRTNYBHEX:
 	POP B
 	RET
 
-;;; Look up HL as the CRC in the ROM table and print the associated string.
-;;; ROM table is alternating 16-bit words: CRC0, STR0, CRC1, STR1, CRC2, STR2, 0000.
-;;; Modifies A.
-PRTROMLOOKUP:
+;;; Print a string associated with the CRC
+;;; Entry: BC=CRC
+;;; Modifies A
+PRTCRCLOOKUP:
 	PUSH H
-	PUSH B
 	PUSH D
-	XCHG			; Put CRC into DE, free up HL
-	LXI H, ROMTABLE
+	LXI H, CRCTABLE
+	CALL PRTLOOKUP
+	POP D
+	POP H
+	RET
+
+;;; Look up BC in the table at HL and print the associated string (null terminated).
+;;; Table is alternating 16-bit words:  ID0, STR0,  ID1, STR1,  ID2, STR2,  0000, STRZ.
+;;; If no match is found, STRZ is printed.
+;;; Entry: BC=key, HL=table
+;;; Exit: Modifies all registers. See also PRTCRCLOOKUP.
+PRTLOOKUP:
 LOOKUPLOOP:
 	MOV C, M		; Read the bytes at address HL, HL+1 and put them in BC
 	INX H
@@ -242,16 +265,51 @@ FOUNDMATCH:
 	INX H
 	MOV D, M
 	XCHG			; Swap HL and DE
-	CALL PRT0		; Print HL
-	CALL PRTNL
-	POP D
-	POP B
-	POP H
+	CALL PRT0		; Print *HL 
 	RET
 
 CRCIS:	DB "CRC-16 = ", 0
 HEXITS:	DB "0123456789ABCDEF"
 
-	include "romtable.asm"	; Mapping from CRC16 to ROM names
+QIDKYOTRONIC:	DB "Kyocera Kyotronic 85", 0
+QIDTANDY200:	DB "Tandy 200", 0
+QIDMODEL100:	DB "TRS-80 Model 100", 0
+QIDTANDY102US:	DB "Tandy 102 (US)", 0
+QIDTANDY102UK:	DB "Tandy 102 (UK)", 0
+QIDM10EU:	DB "Olivetti M10 (Europe)", 0
+QIDM10NA:	DB "Olivetti M10 (North America)", 0
+QIDPC8201A:	DB "NEC PC 8201A", 0
+QIDPC8300:	DB "NEC PC 8300", 0
+QIDBECKMAN:	DB "NEC PC-8300 Beckman E3.2", 0
+QIDTANDY600:	DB "Tandy 600 BASIC", 0
+QIDUNKNOWN:	DB "Unknown model", 0
+
+QIDTABLE:
+	DB 35, 35,
+	DW QIDM10EU
+	DB 51, 83
+	DW QIDMODEL100
+	DB 72, 209
+	DW QIDBECKMAN
+	DB 125, 205
+	DW QIDM10NA
+	DB 144, 254
+	DW QIDTANDY600
+	DB 148, 101
+	DW QIDPC8201A
+	DB 148, 235
+	DW QIDPC8300
+	DB 167, 83
+	DW QIDTANDY102US
+	DB 167, 96
+	DW QIDTANDY102UK
+	DB 171, 9
+	DW QIDTANDY200
+	DB 225, 194
+	DW QIDKYOTRONIC
+	DB 0, 0
+	DW QIDUNKNOWN
+
+	include "crctable.asm"	; Mapping from CRC16 to ROM variant names
 
 	
