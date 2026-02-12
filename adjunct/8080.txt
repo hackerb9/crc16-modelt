@@ -127,3 +127,9 @@ ENDIF             End of Conditional Assembly.
 DB    List        Define Bytes. May be Hex, ASCII, etc.
 DW    List        Define Words. May be Hex, ASCII, etc.
 DS    Exp         Define Storage of length Exp.
+
+
+;; 8085:  LHLI and SHLI are undocumented 16-bit transfer opcodes.
+;; LHLI loads HL with the two bytes at the address pointed to by DE.
+;; SHLI stores instead of loading.
+
