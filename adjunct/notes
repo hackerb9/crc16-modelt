@@ -7,32 +7,41 @@ LOADM and RUNM put a copy starting at HIMEM. If it is too long and
 exceeds MAXRAM, bad things will happen and you will *not* be warned.
 
 After LOADM, the .CO file can be deleted to free up RAM, but machine
-language programs are still limited to half the available RAM. 
+language programs are still limited to *half* the available RAM. 
 
-The assembly program's ORG is HIMEM. The binary file's length must be
-less than MAXRAM minus HIMEM.
+The assembly program's ORG is HIMEM.
+The binary file's length must be less than MAXRAM minus HIMEM.
 
-Question: HIMEM's address appears to be the first byte reserved.
-	  Is MAXRAM the first byte UNreserved? Or the last byte reserved?
-	  Former makes more sense so that HIMEM=MAXRAM means zero bytes.
+HIMEM is set using the CLEAR command to reserve space for CO files.
 
-SMALLEST RAM
-8K Model 100: Lowest HIMEM that can be reserved with CLEAR is 58044,
-   	      but only if string space is zero (CLEAR 0, 58044) and
-   	      there are no files.
+HIMEM's address is the first byte reserved.
+MAXRAM is the first byte UNreserved (NOT the last byte reserved).
 
-MINIMUM MAXRAM
+Hackerb9 defines "MINRAM":
+
+	The lowest address for HIMEM that can be set with CLEAR 0, x
+	without getting "?OM Error". The absolute lowest will be with
+	no files in the filesystem and MAXFILES=0. Machines with less
+	memory have a larger MINRAM.
+
+LARGEST MINRAM
+8K Model 100: MINRAM is 57777,
+	      when string space=0, MAXFILES=0, and there are no files.
+		MAXFILES=0
+		CLEAR 0, 57777
+
+SMALLEST MAXRAM
 Tandy 200:    MAXRAM is 61104
 
 
 Thus... the largest cross-platform machine language file would be:
 
-	(61104-58044)/2 = 1530 bytes
+	(61104-57777)/2 = 1663.5 bytes
 
 	[Give or take. the LOADM copy uses six less bytes and filesystem adds
 	 a few more bytes in the header of the file.]
 
-So, the ideal address for ORG / HIMEM is approximately 59574 (E8B6).
+So, the ideal address for ORG (HIMEM) is approximately 59441 (E831).
 
 
 ======================================================================
@@ -51,10 +60,13 @@ Possible solutions:
 	1. Switch to the bitwise algorithm which is quite a bit
 	   smaller and still tolerably fast.
 
-	2. Keep the detailed information in a separate file. A text
-	   file will not need to be duplicated into high memory via
-	   LOADM. Does require file manipulation and parsing, which
-	   could outweigh the space saving.
+	2. Keep the detailed information in a separate file.
+	   NOT EASY! Each machine architecture has a different
+	   location for calls to access files. 
+
+	   A text file will not need to be duplicated into high memory
+	   via LOADM. Does require file manipulation and parsing,
+	   which could outweigh the space saving.
 	   
 	   Having multiple files is messy for distribution, things get
 	   separated, but it does have the advantage that the program
@@ -68,8 +80,26 @@ Possible solutions:
 
 	  a. Easiest is to allow free form variant text as that's
              already working.
+    [x]    DONE!
 
-	  b. Alternately, since it'll be extremely repetitive, use a
+    	  b. Allow characters > 127 to be defined as keywords to
+    	     replace. This would be done in mkcrctable.awk. 
+
+	         C128:	DB "Virtual-T ", 0
+	         C129:	DB "Y2K patched ", 0
+		 CERR:  DB "Error in mkcrctable.awk", 0
+		 HIGHASCIITABLE: DB 128
+		 		 DW C128
+				 DB 129
+				 DW C129
+				 DB 0
+				 DW CERR
+
+	     Then PRT0HA could be a modification to PRT0 that prints
+	     ASCII normally, but high-ascii gets looked up in the
+	     table and PRT0 called to print the string.
+
+	  c. Alternately, since it'll be extremely repetitive, use a
 	     16-bit field with each bit indicating a variant. (For
              example, a file might be modded for both Y2K and Virtual-T).
 
