@@ -1,5 +1,4 @@
-all:  crc16-bytewise.bin crc16-bitwise.bin crc16-pushpop.bin \
-	CRC16.CO CRCBIT.CO CRCPSH.CO crc16 sanity
+all:  	CRC16.CO CRCBIT.CO CRCPSH.CO crc16 sanity
 
 # ORG is the address where the programs are assembled to load.
 # * Can't be too low or 8K machines can't load the file. (About 59500 minimum).
@@ -8,6 +7,7 @@ all:  crc16-bytewise.bin crc16-bitwise.bin crc16-pushpop.bin \
 #   which means ORG has to be less than 61104-1485 = 59619.
 # * If ORG + filesize > 61104, this program would crash the whole computer!
 # * If ORG changes, it must change here and in the model-*.asm files.
+# * See the "sanity" script.
 ORG=59595
 
 # These are just the CRC-16 routine assembled, but not part of a usable program.
