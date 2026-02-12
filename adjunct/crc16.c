@@ -41,9 +41,10 @@ int main(int argc, char *argv[]) {
 	crc = crc16xmodem_bit(crc, buffer, ret);
 	if (debug>1) printf("%x\t", crc);
       }
+      if (debug>1) printf("\n");
     
       fclose(fp);
-      printf("%X\t%s\n", crc, *argv);
+      printf("%04X\t%s\n", crc, *argv);
     }
     return 0;
 }
