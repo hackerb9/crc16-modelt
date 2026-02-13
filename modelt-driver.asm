@@ -171,17 +171,17 @@ WAITNEC:
 	CALL CHNEC
 	RET
 
-;;; Print a null-terminated string pointed to by HL.
-;;; Modifes A and HL
-PRT0:	
-	MOV A, M
-	ANA A
-	JZ PRT0DONE
-	RST 4
-	INX H
-	JMP PRT0
-PRT0DONE:
-	RET
+;; ;;; Print a null-terminated string pointed to by HL.
+;; ;;; Modifes A and HL
+;; PRT0:	
+;; 	MOV A, M
+;; 	ANA A
+;; 	JZ PRT0DONE
+;; 	RST 4
+;; 	INX H
+;; 	JMP PRT0
+;; PRT0DONE:
+;; 	RET
 
 ;;; Print newline (carriage return + line feed)
 ;;; Modifes A
@@ -191,6 +191,34 @@ PRTNL:
 	MVI A, 10
 	RST 4
 	RET
+
+;;; Print a null-terminated string pointed to by HL.
+;;; If any characters have the high-bit set, 
+;;; look them up in the HIGHASCIITABLE and print the associated string.
+;;; Modifes A and HL
+PRT0:	
+	MOV A, M
+	ANA A
+	JZ PRT0DONE
+	CPI 7FH
+	JP PRTHIGHASCII
+	RST 4
+	INX H
+	JMP PRT0
+PRT0DONE:
+	RET
+PRTHIGHASCII:
+	PUSH H
+	PUSH D
+	MOV E, A
+	MVI D, 0
+	LXI H, HIGHASCIITABLE
+	CALL PRTLOOKUP
+	POP D
+	POP H
+	INX H
+	JMP PRT0
+
 
 ;;; Given a byte in A, print it as two hexits. 
 PRTHEX:	
@@ -238,7 +266,7 @@ PRTCRCLOOKUP:
 ;;; Table is alternating 16-bit words:  ID0, STR0,  ID1, STR1,  ID2, STR2,  0000, STRZ.
 ;;; If no match is found, STRZ is printed.
 ;;; Entry: DE=key, HL=table
-;;; Exit: Modifies all registers. See also PRTCRCLOOKUP.
+;;; Exit: Modifies BC, HL, A. See also PRTCRCLOOKUP.
 PRTLOOKUP:
 LOOKUPLOOP:
 	MOV C, M		; Read the bytes at address HL, HL+1 and put them in BC
@@ -272,18 +300,42 @@ FOUNDMATCH:
 CRCIS:	DB "CRC-16 = ", 0
 HEXITS:	DB "0123456789ABCDEF"
 
-QIDKYOTRONIC:	DB "Kyocera Kyotronic 85", 0
-QIDTANDY200:	DB "Tandy 200", 0
-QIDMODEL100:	DB "TRS-80 Model 100", 0
-QIDTANDY102US:	DB "Tandy 102 (US)", 0
-QIDTANDY102UK:	DB "Tandy 102 (UK)", 0
-QIDM10EU:	DB "Olivetti M10 (EU)", 0
-QIDM10NA:	DB "Olivetti M10 (NA)", 0
-QIDPC8201A:	DB "NEC PC 8201A", 0
-QIDPC8300:	DB "NEC PC 8300", 0
-QIDBECKMAN:	DB "NEC PC-8300 Beckman E3.2", 0
-QIDTANDY600:	DB "Tandy 600 BASIC", 0
-QIDTELEVERKET:	DB "TRS-80 Televerket Modell 100", 0
+HIGHASCIITABLE:
+	DB 128, 0
+	DW C128
+	DB 129, 0
+	DW C129
+	DB 130, 0
+	DW C130
+	DB 131, 0
+	DW C131
+	DB 132, 0
+	DW C132
+	DB 133, 0
+	DW C133
+	DB 0, 0
+	DW CERR
+
+C128:	DB "TRS-80 ", 0
+C129:	DB "Model 100", 0
+C130:	DB "Tandy ", 0
+C131:	DB "Olivetti M10 ", 0
+C132:	DB "NEC PC-", 0
+C133:	DB "Kyocera Kyotronic 85", 0
+CERR:	DB "Error in mkcrctable.awk", 0
+
+QIDKYOTRONIC:	DB 133, 0
+QIDTANDY200:	DB 130, "200", 0
+QIDMODEL100:	DB 128, 129, 0
+QIDTANDY102US:	DB 130, "102 (US)", 0
+QIDTANDY102UK:	DB 130, "102 (UK)", 0
+QIDM10EU:	DB 131, "(EU)", 0
+QIDM10NA:	DB 131, "(NA)", 0
+QIDPC8201A:	DB 132, "8201A", 0
+QIDPC8300:	DB 132, "8300", 0
+QIDBECKMAN:	DB 132, "8300 Beckman E3.2", 0
+QIDTANDY600:	DB 130, "600 BASIC", 0
+QIDTELEVERKET:	DB 128, "Televerket Modell 100", 0
 
 QIDUNKNOWN:	DB "Unknown model", 0
 
