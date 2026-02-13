@@ -30,8 +30,8 @@ your ROM can be added to the list.
 See below for a C program which can calculate the same checksum on a
 PC or UNIX host.
 
-If you wish to use just the CRC-16 routine in your own program, see
-[crc16-8080][crc16-8080].
+If you wish to use just the CRC-16 routine in your own 8080 program,
+see [crc16-8080][crc16-8080].
 
 ## Source code
 
@@ -221,30 +221,6 @@ Output from <a href="ROMs/id.py">id.py</a>.
 |     225 |     194 | Kyocera_Kyotronic_85+orig.bin        |
 |     225 |     194 | Kyocera_Kyotronic_85+y2k.bin         |
 |     225 |     194 | TRS-80_Model_100_uk+skl.bin          |
-
-
-|      35 |      35 | M10_System_ROM_EU.orig.bin           |
-|      35 |      35 | M10_System_ROM_EU.y2k.bin            |
-|      51 |      83 | TRS-80_Model_100.orig.bin            |
-|      51 |      83 | TRS-80_Model_100.y2k.bin             |
-|      51 |     205 | TRS-80_Model_100+LibROM-1.1a.bin     |
-|      72 |     209 | NEC_PC-8300_Beckman-E3.2.bin         |
-|     125 |     205 | M10_System_ROM_NorthAmerica.orig.bin |
-|     125 |     205 | M10_System_ROM_NorthAmerica.y2k.bin  |
-|     144 |     254 | Tandy_600_BASIC.bin                  |
-|     148 |     101 | NEC_PC-8201A.orig.bin                |
-|     148 |     101 | NEC_PC-8201A.y2k.bin                 |
-|     148 |     235 | NEC_PC-8300.orig.bin                 |
-|     148 |     235 | NEC_PC-8300.y2k.bin                  |
-|     167 |      83 | Tandy_102.us.orig.bin                |
-|     167 |      83 | Tandy_102.us.y2k.bin                 |
-|     167 |      96 | Tandy_102.uk.orig.bin                |
-|     167 |      96 | Tandy_102.uk.y2k.bin                 |
-|     167 |     123 | Televerket_Modell_100.orig.bin       |
-|     171 |       9 | Tandy_200.M15.orig.bin               |
-|     171 |       9 | Tandy_200.M15.y2k.bin                |
-|     225 |     194 | KC-85.orig.bin                       |
-|     225 |     194 | KC-85.y2k.bin                        |
 
 </ul></details>
 
