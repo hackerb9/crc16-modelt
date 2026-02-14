@@ -58,10 +58,44 @@ KYOTRONIC:
 	JMP ALLDONE
 
 TANDY200:	
-	;; Handle the Tandy 200 specially for all 72K of ROM.
-	LXI D, 0     ; DE: Address to start checksumming (0 for main ROM)
-	LXI B, A000H ; BC: Length of buffer (40K ROM for T200)
+	;; Handle the Tandy 200 specially to checksum all three ROM chips.
+	LXI H, M15
+	CALL PRT0
+	LXI H, CRCIS
+	CALL PRT0
+
+	LXI D, 0     ; DE: T200's M15 chip starts at address 0...
+	LXI B, 8000H ; BC: ...and is 32K long
 	CALL CRC16
+
+	MOV A, H
+	CALL PRTHEX
+	MOV A, L
+	CALL PRTHEX
+	CALL PRTNL
+;	XCHG
+	LXI H, M13
+	CALL PRT0
+	LXI H, CRCIS
+	CALL PRT0
+;	XCHG
+
+	LXI D, 8000H ; DE: T200's M13 chip starts at address 32768...
+	LXI B, 2000H ; BC: ...and is 8K long
+	CALL CRC16
+	CALL PRTCRCLOOKUP	; Look up CRC in table and print match
+
+	MOV A, H
+	CALL PRTHEX
+	MOV A, L
+	CALL PRTHEX
+	CALL PRTNL
+;	XCHG
+	LXI H, M14
+	CALL PRT0
+	LXI H, CRCIS
+	CALL PRT0
+;	XCHG
 
 	;; Switch to the Multiplan ROM bank
         ; first, disable interrupts and keep them off,
@@ -74,7 +108,7 @@ TANDY200:
 	
 	LXI D, 0     ; DE: Address to start checksumming
 	LXI B, 8000H ; BC: Length of buffer (32K ROM for T200 multiplan)
-	CALL CRC16_CONTINUE
+	CALL CRC16
 
 	;; Switch back to normal BASIC ROM 
         ; send a specific byte to a specific IO port to get back
@@ -84,7 +118,8 @@ TANDY200:
 	OUT 0D8H	
 	EI
 
-	JMP ALLDONE
+	CALL PRTCRCLOOKUP	; Look up CRC in table and print match
+	JMP WAITEXIT
 	
 PC8300:	
 	;; The PC8300 has four ROM banks of 32K each.
@@ -129,10 +164,9 @@ ALLDONE:
 	CALL PRTHEX
 	CALL PRTNL
 
-	XCHG
 	CALL PRTCRCLOOKUP	; Look up CRC in table and print match
-	XCHG
 
+WAITEXIT:
 	;; Do we know how to wait for a key?
 	LXI D, 1
 	LDAX D
@@ -258,13 +292,14 @@ PRTNYBHEX:
 	RET
 
 ;;; Print a string associated with the CRC
-;;; Entry: BC=CRC
+;;; Entry: HL=CRC
 ;;; Modifies A
 PRTCRCLOOKUP:
 	PUSH H
 	PUSH D
+	XCHG
 	LXI H, CRCTABLE
-	CALL PRTLOOKUP
+	CALL PRTLOOKUP		; CRC in DE, table in HL
 	POP D
 	POP H
 	RET
@@ -304,7 +339,11 @@ FOUNDMATCH:
 	CALL PRT0		; Print *HL 
 	RET
 
+M15:	DB " Main 32K ROM ", 0
+M13:	DB " Main  8K ROM ", 0
+M14:	DB "Multiplan ROM ", 0
 CRCIS:	DB "CRC-16 = ", 0
+
 HEXITS:	DB "0123456789ABCDEF"
 
 HIGHASCIITABLE:
