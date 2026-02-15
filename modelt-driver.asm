@@ -66,13 +66,8 @@ TANDY200:
 
 	LXI D, 0     ; DE: T200's M15 chip starts at address 0...
 	LXI B, 8000H ; BC: ...and is 32K long
-	CALL CRC16
+	CALL CRCANDLOOKUP
 
-	MOV A, H
-	CALL PRTHEX
-	MOV A, L
-	CALL PRTHEX
-	CALL PRTNL
 ;	XCHG
 	LXI H, M13
 	CALL PRT0
@@ -82,14 +77,8 @@ TANDY200:
 
 	LXI D, 8000H ; DE: T200's M13 chip starts at address 32768...
 	LXI B, 2000H ; BC: ...and is 8K long
-	CALL CRC16
-	CALL PRTCRCLOOKUP	; Look up CRC in table and print match
+	CALL CRCANDLOOKUP
 
-	MOV A, H
-	CALL PRTHEX
-	MOV A, L
-	CALL PRTHEX
-	CALL PRTNL
 ;	XCHG
 	LXI H, M14
 	CALL PRT0
@@ -106,8 +95,8 @@ TANDY200:
 	ORI 00000001b		; enable multiplan rom
 	OUT 0D8H
 	
-	LXI D, 0     ; DE: Address to start checksumming
-	LXI B, 8000H ; BC: Length of buffer (32K ROM for T200 multiplan)
+	LXI D, 0     ; Multiplan ROM starts address 0...
+	LXI B, 8000H ; ... and is 32K long
 	CALL CRC16
 
 	;; Switch back to normal BASIC ROM 
@@ -118,7 +107,10 @@ TANDY200:
 	OUT 0D8H	
 	EI
 
-	CALL PRTCRCLOOKUP	; Look up CRC in table and print match
+	CALL PRTHEX16
+	CALL PRTCRCLOOKUP
+	CALL PRTNL
+
 	JMP WAITEXIT
 	
 PC8300:	
@@ -157,16 +149,16 @@ ALLDONE:
 	CALL PRT0
 	XCHG			; HL=DE
 
-	;; Print HL as hexadecimal nybbles
-	MOV A, H
-	CALL PRTHEX
-	MOV A, L
-	CALL PRTHEX
+	;; Print HL as four hexadecimal nybbles
+	CALL PRTHEX16
 	CALL PRTNL
 
 	CALL PRTCRCLOOKUP	; Look up CRC in table and print match
 
 WAITEXIT:
+	LXI H, HITAKEY
+	CALL PRT0
+
 	;; Do we know how to wait for a key?
 	LXI D, 1
 	LDAX D
@@ -180,6 +172,9 @@ WAITEXIT:
 	JZ WAITNEC
 
 	;; Unrecognized machine, let's just pause for about 5 seconds.
+	LXI H, PAUSING
+	CALL PRT0
+
 	LXI B, 10H
 PAUSE1:	
 	LXI H, FFFFH
@@ -261,6 +256,17 @@ PRTHIGHASCII:
 	JMP PRT0
 
 
+;;; Print HL as four hexadecimal hexits
+;;; Modifies A
+PRTHEX16:
+	MOV A, H
+	CALL PRTHEX
+	MOV A, L
+	CALL PRTHEX
+	MVI A, ' '
+	RST 4
+	RET
+
 ;;; Given a byte in A, print it as two hexits. 
 PRTHEX:	
 	PUSH D
@@ -289,6 +295,15 @@ PRTNYBHEX:
 	RST 4
 	POP H
 	POP B
+	RET
+
+;;; With DE set to start address and BC set to length to checksum,
+;;; Calculate the CRC, print it as HEX, and print out if its known.
+CRCANDLOOKUP:	
+	CALL CRC16
+	CALL PRTHEX16
+	CALL PRTCRCLOOKUP
+	CALL PRTNL
 	RET
 
 ;;; Print a string associated with the CRC
@@ -339,12 +354,17 @@ FOUNDMATCH:
 	CALL PRT0		; Print *HL 
 	RET
 
+HEXITS:	DB "0123456789ABCDEF"
+
 M15:	DB " Main 32K ROM ", 0
 M13:	DB " Main  8K ROM ", 0
 M14:	DB "Multiplan ROM ", 0
 CRCIS:	DB "CRC-16 = ", 0
 
-HEXITS:	DB "0123456789ABCDEF"
+HITAKEY: DB "        <Hit any key to exit.>", 0
+PAUSING: DB "\r\eKPausing...", 0 	; Esc+K is clear to end of line
+
+
 
 HIGHASCIITABLE:
 	DW C128
