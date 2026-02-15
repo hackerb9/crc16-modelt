@@ -33,6 +33,9 @@ CHNEC	EQU	174DH		; wait for key - NEC PC-8201 & 8300
 	MOV E, M		; D=PEEK(1)
 	LXI H, 21358
 	MOV D, M		; E=PEEK(21358)
+	XCHG
+	CALL PRTHEX16
+	XCHG
 	LXI H, QIDTABLE
 	CALL PRTLOOKUP		; Print make and model
 	CALL PRTNL
@@ -357,7 +360,7 @@ M14:	DB "Multiplan ", 134, 0
 CRCIS:	DB "CRC-16 = ", 0
 
 HITAKEY: DB "        <Hit any key to exit.>", 0
-PAUSING: DB "\r\eKPausing...", 0 	; Esc+K is clear to end of line
+PAUSING: DB "\r", 1BH, "KPausing...", 0 	; Esc+K is clear to end of line
 
 HIGHASCIITABLE:
 	DW C128, C129, C130, C131, C132, C133, C134, C135
@@ -376,7 +379,7 @@ C136:	DB "", 0
 C137:	DB "", 0
 CERR:	DB "Error in mkcrctable.awk", 0
 
-QUICKIDSTR:	DB "Quick ID: ", 0
+QUICKIDSTR:	DB "QuickID: ", 0
 QIDKYOTRONIC:	DB 133, 0
 QIDTANDY200:	DB 130, "200", 0
 QIDMODEL100:	DB 128, 129, 0
