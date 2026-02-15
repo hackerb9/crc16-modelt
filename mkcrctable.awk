@@ -55,6 +55,8 @@ ENDFILE {
 	printf("%-40s DB %s,0\n", gensub(/$/, ":", "g", label[i]), name[label[i]]);
     }
     printf("%-40s DB " dq "%s" dq ",0\n", "ROM_NOT_RECOGNIZED:",
-	   "(Bad?)\\r\\nUnknown ROM. Please report at\\r\\ngithub.com/hackerb9/crc16-modelt");
+	   "Unknown!\\r\\n" \
+	   "! Please file an issue at\\r\\n" \
+	   "! github.com/hackerb9/crc16-modelt\\r\\n");
 }
 '
