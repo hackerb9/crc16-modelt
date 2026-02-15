@@ -38,26 +38,29 @@ CHNEC	EQU	174DH		; wait for key - NEC PC-8201 & 8300
 	CALL PRTNL
 
 	;; Model-Ts have 3 different ROM layouts: T200, PC8300, and all else.
-	;; Tandy 200 if peek(1) == 171, ROM is 72K (40K + 32K).
+	;; Tandy 200 if peek(1) == 171. ROM is 72K (40K + 32K).
 	LXI D, 1
 	LDAX D
 	CPI 171			; T200
 	JZ TANDY200
 
-	;; PC8300 if peek(21358) == 235, ROM is 128K (4x 32K).
+	LXI H, CRCIS		; Print "CRC-16 is "
+	CALL PRT0
+
+	;; PC8300 if peek(21358) == 235. ROM is 128K (4x 32K).
 	LXI D, 21358
 	LDAX D
 	CPI 235			; PC8300
 	JZ PC8300
 
 KYOTRONIC:	
-	;; All other Kyotronic Sisters (m100, m10, pc8201) have 32KB of ROM.
+	;; All the other Kyotronic Sisters (m100, m10, pc8201) have 32KB ROM.
 	LXI D, 0     ; DE: Address to start checksumming (0 for ROM)
 	LXI B, 8000H ; BC: Length of buffer (8000H for 32K ROM)
 
 	;; Calculate checksum of BC bytes at addr DE and put result in HL.
 	CALL CRC16
-	JMP ALLDONE
+	JMP ALLDONE		; Print results
 
 TANDY200:	
 	;; Handle the Tandy 200 specially to checksum all three ROM chips.
@@ -68,7 +71,7 @@ TANDY200:
 
 	LXI D, 0     ; DE: T200's M15 chip starts at address 0...
 	LXI B, 8000H ; BC: ...and is 32K long
-	CALL CRCANDLOOKUP
+	CALL CRCANDHEXANDLOOKUP
 
 ;	XCHG
 	LXI H, M13
@@ -79,7 +82,7 @@ TANDY200:
 
 	LXI D, 8000H ; DE: T200's M13 chip starts at address 32768...
 	LXI B, 2000H ; BC: ...and is 8K long
-	CALL CRCANDLOOKUP
+	CALL CRCANDHEXANDLOOKUP
 
 ;	XCHG
 	LXI H, M14
@@ -109,11 +112,7 @@ TANDY200:
 	OUT 0D8H	
 	EI
 
-	CALL PRTHEX16
-	CALL PRTCRCLOOKUP
-	CALL PRTNL
-
-	JMP WAITEXIT
+	JMP ALLDONE		; Prints final hex & crc lookup
 	
 PC8300:	
 	;; The PC8300 has four ROM banks of 32K each.
@@ -146,16 +145,9 @@ PC8300_BANK_LOOP:
 
 ALLDONE:
 	;;; All done with entire buffer. Checksum result is in HL.
-	XCHG			; DE=HL
-	LXI H, CRCIS		; Print "CRC-16 is "
-	CALL PRT0
-	XCHG			; HL=DE
-
-	;; Print HL as four hexadecimal nybbles
-	CALL PRTHEX16
-	CALL PRTNL
-
-	CALL PRTCRCLOOKUP	; Look up CRC in table and print match
+	;; Print HL as four hexadecimal nybbles, then
+	;; Look up CRC in table and print match
+	CALL HEXANDLOOKUP
 
 WAITEXIT:
 	LXI H, HITAKEY
@@ -301,8 +293,9 @@ PRTNYBHEX:
 
 ;;; With DE set to start address and BC set to length to checksum,
 ;;; Calculate the CRC, print it as HEX, and print out if its known.
-CRCANDLOOKUP:	
+CRCANDHEXANDLOOKUP:
 	CALL CRC16
+HEXANDLOOKUP:
 	CALL PRTHEX16
 	CALL PRTCRCLOOKUP
 	CALL PRTNL
@@ -377,10 +370,10 @@ C130:	DB "Tandy ", 0
 C131:	DB "Olivetti M10 ", 0
 C132:	DB "NEC PC-", 0
 C133:	DB "Kyocera Kyotronic 85", 0
-C134:	DB "ROM "
-C135:	DB ""
-C136:	DB ""
-C137:	DB ""
+C134:	DB "ROM ", 0
+C135:	DB "", 0
+C136:	DB "", 0
+C137:	DB "", 0
 CERR:	DB "Error in mkcrctable.awk", 0
 
 QUICKIDSTR:	DB "Quick ID: ", 0
