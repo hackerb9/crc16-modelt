@@ -27,6 +27,8 @@ CHNEC	EQU	174DH		; wait for key - NEC PC-8201 & 8300
 	;; to print the make and model . This saves bytes in the CRC
 	;; lookup table as it only needs to contain variations (such
 	;; as "North America", "Y2K patched" or "Virtual-T 7.1").
+	LXI H, QUICKIDSTR
+	CALL PRT0
 	LXI H, 1
 	MOV E, M		; D=PEEK(1)
 	LXI H, 21358
@@ -356,23 +358,16 @@ FOUNDMATCH:
 
 HEXITS:	DB "0123456789ABCDEF"
 
-M15:	DB " Main 32K ROM ", 0
-M13:	DB " Main  8K ROM ", 0
-M14:	DB "Multiplan ROM ", 0
+M15:	DB " Main 32K ", 134, 0
+M13:	DB " Main  8K ", 134, 0
+M14:	DB "Multiplan ", 134, 0
 CRCIS:	DB "CRC-16 = ", 0
 
 HITAKEY: DB "        <Hit any key to exit.>", 0
 PAUSING: DB "\r\eKPausing...", 0 	; Esc+K is clear to end of line
 
-
-
 HIGHASCIITABLE:
-	DW C128
-	DW C129
-	DW C130
-	DW C131
-	DW C132
-	DW C133
+	DW C128, C129, C130, C131, C132, C133, C134, C135
 	DB 0, 0
 	DW CERR
 
@@ -382,8 +377,13 @@ C130:	DB "Tandy ", 0
 C131:	DB "Olivetti M10 ", 0
 C132:	DB "NEC PC-", 0
 C133:	DB "Kyocera Kyotronic 85", 0
+C134:	DB "ROM "
+C135:	DB ""
+C136:	DB ""
+C137:	DB ""
 CERR:	DB "Error in mkcrctable.awk", 0
 
+QUICKIDSTR:	DB "Quick ID: ", 0
 QIDKYOTRONIC:	DB 133, 0
 QIDTANDY200:	DB 130, "200", 0
 QIDMODEL100:	DB 128, 129, 0
@@ -396,7 +396,6 @@ QIDPC8300:	DB 132, "8300", 0
 QIDBECKMAN:	DB 132, "8300 Beckman E3.2", 0
 QIDTANDY600:	DB 130, "600 BASIC", 0
 QIDTELEVERKET:	DB 128, "Televerket Modell 100", 0
-
 QIDUNKNOWN:	DB "Unknown model", 0
 
 QIDTABLE:
