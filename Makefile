@@ -44,7 +44,7 @@ adjunct/extrasums.txt:
 .PHONY: sanity
 sanity: CRCPSH.CO CRCBIT.CO CRC16.CO
 	@for f in CRCPSH.CO CRCBIT.CO CRC16.CO; do \
-		echo ./sanitycheck "$$f"; \
+		echo -n ./sanitycheck "$$f ... "; \
 		./sanitycheck "$$f"; \
 	done
 
