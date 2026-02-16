@@ -2,17 +2,15 @@
 ;;; Hackerb9, January 2026
 
 ;;; This program prints the checksum of the system ROM. Requires 8K of RAM. 
-;;; Use CLEAR 256,60000 to reserve space before running.
+;;; Use CLEAR 256,59595 to reserve space before running.
 
 ;;; This should work for any computer related to the Kyotronic-85. 
-;;; KC-85, M10, M100, T102, PC8201: All work without special handling. 
-;;; Tandy 200: Recognized and checks all 72K of ROM via bank selection. 
-;;; PC-8300: Recognized and checks all 128K of ROM via bank selection.
+;;; * KC-85, M10, M100, T102, PC8201: All work without special handling. 
+;;; * Tandy 200: Recognized and checks all 72K of ROM via bank selection. 
+;;; * PC-8300: Recognized and checks all 128K of ROM via bank selection.
 
-;;; For machine detection, currently two memory addresses are checked:
-
-
-
+;;; For a quick identification of the machine, currently two memory
+;;; addresses are checked: PEEK(1) and PEEK(21358).
 	
 	.8080			; Hint to asmx
 
