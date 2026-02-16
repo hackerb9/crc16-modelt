@@ -37,8 +37,8 @@ CRCPSH.CO: modelt-pushpop.asm modelt-driver.asm crc16-pushpop.asm
 .PHONY: sanity
 sanity: CRCPSH.CO CRCBIT.CO CRC16.CO
 	@for f in CRCPSH.CO CRCBIT.CO CRC16.CO; do \
-		echo -n ./sanitycheck "$$f ... "; \
-		./sanitycheck "$$f"; \
+		echo -n ./sanitycheck "$$f $(ORG)... "; \
+		./sanitycheck "$$f" $(ORG); \
 	done
 
 # This is a C program for checking that the CRC-16 is being calculated correctly. 
