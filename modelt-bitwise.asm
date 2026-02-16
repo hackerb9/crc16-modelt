@@ -7,15 +7,15 @@
 ;; ENTRY - Where the program will be entered (entry point).
 ;; Executable data - 8085 machine code ORG'ed at START.
 ENT:	MACRO 	P1
+	ORG	P1
 	DW 	P1, ENDP-BEGINP, P1
 	RORG	P1
 	ENDM
 
-	ORG	60000			; Use CLEAR 255,59999
-	ENT	60000
+	ENT	59595			; Use CLEAR 255,59595
 BEGINP:	
 
 	INCLUDE modelt-driver.asm
 	INCLUDE crc16-bitwise.asm
 
-ENDP
+ENDP:	
