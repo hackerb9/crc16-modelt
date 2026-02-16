@@ -1,10 +1,33 @@
 #!/bin/bash
 
-# The machine language program has to fit between ORG and MAXRAM in
-# the space reserved in RAM using CLEAR 256, _ORG_. 
+# Sanity checks for a Model T .CO file (machine language binary).
+# Mainly done by checking the six-byte header which defines the
+# TOP (loading address), LEN (file size - 6), and EXE (entry addres).
 
-# Tandy 200 has lowest MAXRAM at 61104. 
-limit=$((61104))
+# 1. The machine language program has to fit between ORG and MAXRAM in
+#    the space reserved in RAM using CLEAR 256, _ORG_. 
+#    Tandy 200 has lowest MAXRAM at 61104.
+
+# 2. The program cannot be ORG'd below 58300.
+#    (clear 256, 58299 gives OUT OF MEMORY error on 8K models).
+#    NB: This check does *not* ensure there is enough space to have
+#    the .CO in both the filesystem and in memory via LOADM.
+
+# 3. The .CO file cannot be empty, which is something that happens
+#    sometimes when asmx fails.
+
+# 4. The TOP and EXE are almost always the same and so it is treated
+#    as an error here if they are not.
+
+# 5. If the ORG address is passed in as a second argument, then it
+#    should be the same as TOP. If it is not, it is likely a sign that
+#    ORG was changed in the Makefile or the .ASM file, but the other
+#    was not synchronized. This happens because asmx doesn't use the
+#    .ASM's ORG address and needs to have -b$(ORG) specified manually.
+
+
+maxlimit=$((61104))
+minlimit=$((58300))
 file=${1:-CRC16.CO}
 org="$2"
 size=$(stat -c %s "$file")
@@ -14,17 +37,67 @@ if (( $size == 0 )); then
     exit 1
 fi
 
-if [ -z "$org" ]; then
-    org=$( od -d -N2 "$file" | head -1 | cut -d ' ' -f2 )
-#    echo "ORG is $org"
+read junk top len exe < <(od -d -N6 "$file" )
+if [[ $top != $exe || ( "$org" && $top != $org ) ]]; then
+    cat >&2 <<EOF
+Error for $file!
+    Double check ORG address in Makefile and .asm.
+    Top: $top
+    End: $((top+len))
+    Exe: $exe
+EOF
+    [[ $org ]] && echo "    ORG: $org" >&2
+    echo >&2
+    exit 1
+else
+    org=$top
 fi
 
-endaddr=$(( size + org ))
-if (( endaddr >= limit )); then
-    echo "Error for $file!" >&2 
-    echo -e "\tORG + filesize exceeds maxram limits by $((endaddr-limit+1)) bytes!" >&2 
-    echo -e "\t$org + $size = $endaddr >= $limit (MAXRAM of T200).\n" >&2 
+if (( size != len+6 )); then
+    cat >&2 <<EOF
+Error for $file! 
+    File size does not match length in .CO header.
+    Actual size: $size
+    Length in header: $len
+    $len + 6 = $((len+6)) != $size
+
+EOF
     exit 1
+fi
+
+
+endaddr=$(( size + org ))
+if (( endaddr >= maxlimit )); then
+    cat >&2 <<EOF
+Error for $file! 
+    ORG + filesize exceeds maxram limits by $((endaddr-maxlimit+1)) bytes!
+    $org + $size = $endaddr >= $maxlimit (MAXRAM of T200).
+
+EOF
+    exit 1
+fi
+
+if (( org < minlimit )); then
+    cat >&2 <<EOF
+Error for $file! 
+    ORG is $org, which is too low to fit on an 8K machine.
+    The minimum ORG is $minlimit (if using LOADM from PDD or cassette).
+EOF
+    exit 1
+fi
+
+
+if (( org < 59575 )); then
+    cat >&2 <<EOF
+Warning for $file.
+    ORG is $org, which may be too low to fit on an 8K machine as
+    loading the file over the serial port takes twice the space: 
+    once as a .CO file and once again in executable RAM via LOADM.
+    The minimum ORG is around 59575 on an 8K machine if transferring
+    via serial port.
+
+EOF
+    exit 0
 fi
 
 echo "OK"
