@@ -2,28 +2,27 @@
 
 # Sanity checks for a Model T .CO file (machine language binary).
 # Mainly done by checking the six-byte header which defines the
-# TOP (loading address), LEN (file size - 6), and EXE (entry addres).
+# TOP (loading address), LEN (file size - 6), and EXE (entry address).
 
 # 1. The machine language program has to fit between ORG and MAXRAM in
-#    the space reserved in RAM using CLEAR 256, _ORG_. 
-#    Tandy 200 has lowest MAXRAM at 61104.
+#    the space reserved in RAM using CLEAR 256, _ORG_. Tandy 200 has
+#    lowest MAXRAM at 61104.
 
 # 2. The program cannot be ORG'd below 58300.
 #    (clear 256, 58299 gives OUT OF MEMORY error on 8K models).
 #    NB: This check does *not* ensure there is enough space to have
 #    the .CO in both the filesystem and in memory via LOADM.
 
-# 3. The .CO file cannot be empty, which is something that happens
-#    sometimes when asmx fails.
+# 3. The .CO file cannot be empty, which can happen if asmx fails.
 
 # 4. The TOP and EXE are almost always the same and so it is treated
 #    as an error here if they are not.
 
 # 5. If the ORG address is passed in as a second argument, then it
 #    should be the same as TOP. If it is not, it is likely a sign that
-#    ORG was changed in the Makefile or the .ASM file, but the other
-#    was not synchronized. This happens because asmx doesn't use the
-#    .ASM's ORG address and needs to have -b$(ORG) specified manually.
+#    ORG differs between the Makefile and the .ASM file. This happens
+#    because asmx doesn't use the .ASM's ORG address and needs to have
+#    -b$(ORG) specified manually.
 
 
 maxlimit=$((61104))
@@ -37,7 +36,9 @@ if (( $size == 0 )); then
     exit 1
 fi
 
-read junk top len exe < <(od -d -N6 "$file" )
+# Header: Three two-byte little endian integers.
+read top len exe < <(od -d -N6 -An "$file" )
+
 if [[ $top != $exe || ( "$org" && $top != $org ) ]]; then
     cat >&2 <<EOF
 Error for $file!
@@ -82,6 +83,7 @@ if (( org < minlimit )); then
 Error for $file! 
     ORG is $org, which is too low to fit on an 8K machine.
     The minimum ORG is $minlimit (if using LOADM from PDD or cassette).
+
 EOF
     exit 1
 fi
