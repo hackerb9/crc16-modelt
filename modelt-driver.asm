@@ -32,7 +32,7 @@ PRT0:	MOV A, M
 	JMP PRT0
 PRT0DONE:
 
-	;; Tandy 200 if peek(1) == 171, ROM is 72K (40K + 32K).
+	;; Quick ID to handle machines with unusual ROM layouts
 	LXI D, 1
 	LDAX D
 	CPI 171			; T200
