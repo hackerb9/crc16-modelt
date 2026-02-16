@@ -112,52 +112,7 @@ PC8300_BANK_LOOP:
 
 ALLDONE:
 	;;; All done with entire buffer. Result is in HL.
-	XCHG			; Swap HL and DE for printing
-
-	;; Print DE as hexadecimal nybbles
-	LXI H, HEXITS
-	MOV A, D
-	ANI F0H
-	RAR
-	RAR
-	RAR
-	RAR
-	MVI B, 0
-	MOV C, A
-	DAD B
-	MOV A, M
-	RST 4
-
-	LXI H, HEXITS
-	MOV A, D
-	ANI 0FH
-	MVI B, 0
-	MOV C, A
-	DAD B
-	MOV A, M
-	RST 4
-
-	LXI H, HEXITS
-	MOV A, E
-	ANI F0H
-	RAR
-	RAR
-	RAR
-	RAR
-	MVI B, 0
-	MOV C, A
-	DAD B
-	MOV A, M
-	RST 4
-
-	LXI H, HEXITS
-	MOV A, E
-	ANI 0FH
-	MVI B, 0
-	MOV C, A
-	DAD B
-	MOV A, M
-	RST 4
+	CALL PRTHEX16
 
 	;; Do we know how to wait for a key?
 	LXI D, 1
@@ -197,6 +152,56 @@ WAITNEC:
 	CALL CHNEC
 	RET
 
+
+;;; Print newline (carriage return + line feed)
+;;; Modifes A
+PRTNL:	
+	MVI A, 13
+	RST 4
+	MVI A, 10
+	RST 4
+	RET
+
+;;; Print HL as four hexadecimal hexits
+;;; Modifies A
+PRTHEX16:
+	MOV A, H
+	CALL PRTHEX
+	MOV A, L
+	CALL PRTHEX
+	MVI A, ' '
+	RST 4
+	RET
+
+;;; Given a byte in A, print it as two hexits. 
+PRTHEX:	
+	PUSH D
+	MOV D, A
+	ANI F0H
+	RAR
+	RAR
+	RAR
+	RAR
+	CALL PRTNYBHEX
+	MOV A, D
+	CALL PRTNYBHEX
+	POP D
+	RET
+
+;;; Print the low nybble of A as hexadecimal
+PRTNYBHEX:
+	PUSH B
+	PUSH H
+	ANI 0FH
+	MVI B, 0
+	MOV C, A
+	LXI H, HEXITS
+	DAD B
+	MOV A, M
+	RST 4
+	POP H
+	POP B
+	RET
 
 CRCIS:	DB "CRC-16 = ", 0
 HEXITS:	DB "0123456789ABCDEF"
