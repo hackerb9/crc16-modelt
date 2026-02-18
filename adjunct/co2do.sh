@@ -1,10 +1,31 @@
 #!/bin/bash -e
+# co2do.sh
+# by hackerb9, February 2026
 #
 # Given a .CO machine language file for a TRS-80 Model 100 (or similar),
-# Output a .DO file containing a BASIC locader which will install the .CO.
+# creates a .DO file containing a BASIC loader which will install the .CO
+# to the correct address using POKE and then start it.
 #
-# hackerb9, February 2026
-# Inspired by Stephen Adolph's encoding scheme.
+# USAGE: co2do.sh FOO.CO FOO.DO
+#        Transfer FOO.DO to M100.
+#        On M100: run "FOO"
+#
+# Features:
+# * Inspired by Stephen Adolph's efficient encoding scheme which
+#   increases storage size by at most 2x + k (where k is approx. 600)
+# * Works on any of the Kyotronic Sisters: 
+#     Kyocera Kyotronic 85, TRS-80 Model 100/102, Tandy 200, 
+#     NEC PC-8201A/8300, and Olivetti M10.
+# * BASIC Automatically CLEARs the correct space and CALLs the program.
+# * Uses .CO header to detect where to POKE, length mismatch, and CALL addr.
+# * As a special bonus, if you use the -t option, it will display a
+#   Unicode version of the program instead of writing to a .DO file.
+#   (Requires the tandy-200.charmap file from hackerb9/tandy-locale.)
+
+# Todo: * Move length check out of BASIC code to save space.
+#       * Prevent POKEing to bad parts of RAM.
+#         (E.g., POKE Q where Q<HIMEM or Q>=MAXRAM).
+
 
 function usage() {
     cat <<EOF
@@ -22,17 +43,18 @@ cat <<EOF
 10 CLEAR 256, $TOP
 20 TP=$TOP: LN=$LEN: EX=$EXE
 30 GOSUB 13000
-40 IF PEEK(1)<>148 THEN ?"Use CALL $EXE" ELSE ?"Use EXEC $EXE"
+40 IF PEEK(1)<>148 THEN CALL EX ELSE EXEC EX
 50 END
-13000 REM Decode and load M/L
-13010 Q=$TOP
+13000 'Decode ML
+13010 CLS:Q=$TOP:H$=CHR\$(27)+"H"
+13020 ?H$"       / $((TOP+LEN-1)) $input"
 EOF
     emitbasicdecode
+    printf "14000 '$input"
     printdata "$@"
 }
 
 function printdata() {
-    printf "14000 REM .CO file data"
     local -i linenum=14000 
     local -i v
     for v; do
@@ -54,20 +76,20 @@ function printdata() {
 function emitbasicdecode() {
     # Credit to Stephen Adolph for the decode routine and encoding scheme.
     # Any errors are mine (hackerb9).
-    # I modified it to autodetect the load address from binary.
-    # I use the invalid sequence "//" for End of Data
+    # Modifications:
+    # * autodetect the load address from binary.
+    # * use the invalid sequence "//" for End of Data,
     #   which allows me to quote DEL (7F) using "/\xFF".
-    # I subtract 128 instead of adding it, just for aesthetics.
-    # I double check the filesize matches the header length.
+    # * subtract 128 instead of adding it, just for aesthetics.
+    # * double check the filesize matches the header length.
+    # * do not discard a quoting "/" at the end of a DATA line.
     cat <<"EOF"
-13020 CLS:PRINT"loading ML code...";
-13030 READP$:e=0:FORX=1TOLEN(P$):a$=MID$(P$,X,1)
-13040 if a$="/" and e=1 then 13080
-13050 if a$="/" then e=1:goto 13070
-13055 v=asc(a$): if e=1 then v=v-128: e=0
-13060 print@20,q:POKEQ,v:Q=Q+1
+13030 READP$:FORX=1TOLEN(P$):a$=MID$(P$,X,1)
+13040 if a$="/" then if e=1 then 13080: else e=1: goto 13070
+13050 v=asc(a$): if e=1 then v=v-128: e=0
+13060 ?H$q:POKEQ,v:Q=Q+1
 13070 NEXTx:GOTO13030
-13080 IF LN <> (q-TP) THEN ?:?"Error: Length",LN"<>"q-TP: END
+13080 IF LN<>(q-TP) THEN ?:?"Error:",LN"<>"q-TP:END
 13090 RETURN
 EOF
 }
@@ -93,15 +115,22 @@ EOF
 	shift
     fi
 
-    if [ "$2" ]; then
-	output="$2"
+    output=/dev/stdout
+    if [ "$1" ]; then
+	output="$1"
 	shift
-    elif [[ input == *.CO ]]; then
-	output=${input%.CO}.DO
-    elif [[ input == *.co ]]; then
-	output=${input%.co}.do
-    else
-	output=/dev/stdout
+    elif [[ $tandycharset == "cat" ]]; then
+	if [[ $input == *.CO ]]; then
+	    output=${input%.CO}.DO
+	elif [[ $input == *.co ]]; then
+	    output=${input%.co}.do
+	fi
     fi
 }
 main $(od -t u1 -v -An "$input") | $tandycharset > "$output"
+
+if [[ $tandycharset == "cat" ]]; then
+    outnodo=${output%.[Dd][Oo]}
+    echo "Now transfer $output to your Model-T and in BASIC type"
+    echo "	run \"$outnodo\""
+fi
