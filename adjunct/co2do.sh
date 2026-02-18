@@ -22,7 +22,7 @@ cat <<EOF
 10 CLEAR 256, $TOP
 20 TP=$TOP: LN=$LEN: EX=$EXE
 30 GOSUB 13000
-40 IF PEEK(1)<>148 THEN ?"Use CALL $EX" ELSE ?"Use EXEC $EX"
+40 IF PEEK(1)<>148 THEN ?"Use CALL $EXE" ELSE ?"Use EXEC $EXE"
 50 END
 13000 REM Decode and load M/L
 13010 Q=$TOP
@@ -64,8 +64,8 @@ function emitbasicdecode() {
 13030 READP$:e=0:FORX=1TOLEN(P$):a$=MID$(P$,X,1)
 13040 if a$="/" and e=1 then 13080
 13050 if a$="/" then e=1:goto 13070
-13055 v=asc(a$): if e=1 then v=v-128: goto 13070
-13060 print@20,q:POKEQ,v:Q=Q+1:e=0
+13055 v=asc(a$): if e=1 then v=v-128: e=0
+13060 print@20,q:POKEQ,v:Q=Q+1
 13070 NEXTx:GOTO13030
 13080 IF LN <> (q-TP) THEN ?:?"Error: Length",LN"<>"q-TP: END
 13090 RETURN
@@ -80,10 +80,7 @@ EOF
 	shift
 	tandycharset="iconv -f $(dirname $0)/tandy-200.charmap"
     fi
-    if [[ "$1" == "-" ]]; then
-	shift
-	set -- /dev/stdin "$@"
-    fi
+    if [[ "$1" == "-" ]]; then shift; set -- /dev/stdin "$@"; fi
 
     if [ -z "$1" ]; then
 	usage
