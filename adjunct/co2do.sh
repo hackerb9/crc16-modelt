@@ -11,13 +11,19 @@
 #        On M100: run "FOO"
 #
 # Features:
+#
 # * Inspired by Stephen Adolph's efficient encoding scheme which
-#   increases storage size by at most 2x + k (where k is approx. 600)
+#   increases storage size by at most 2x + k (where k is approx. 600),
+#   and on average closer to 1.3x + k.
+#
 # * Works on any of the Kyotronic Sisters: 
 #     Kyocera Kyotronic 85, TRS-80 Model 100/102, Tandy 200, 
 #     NEC PC-8201A/8300, and Olivetti M10.
+#
 # * BASIC Automatically CLEARs the correct space and CALLs the program.
+#
 # * Uses .CO header to detect where to POKE, length mismatch, and CALL addr.
+#
 # * As a special bonus, if you use the -t option, it will display a
 #   Unicode version of the program instead of writing to a .DO file.
 #   (Requires the tandy-200.charmap file from hackerb9/tandy-locale.)
@@ -39,6 +45,11 @@ function main() {
     LEN=$3+$4*256
     EXE=$5+$6*256
     shift 6
+cat<<EOF >&2
+TOP: $TOP
+END: $((TOP+LEN))
+EXE: $EXE
+EOF
 cat <<EOF
 10 CLEAR 256, $TOP
 20 TP=$TOP: LN=$LEN: EX=$EXE
@@ -130,7 +141,11 @@ EOF
 main $(od -t u1 -v -An "$input") | $tandycharset > "$output"
 
 if [[ $tandycharset == "cat" ]]; then
-    outnodo=${output%.[Dd][Oo]}
-    echo "Now transfer $output to your Model-T and in BASIC type"
-    echo "	run \"$outnodo\""
+    outnodo=${output##*/}
+    outnodo=${outnodo%.[Dd][Oo]}
+cat <<EOF
+Now transfer $output to your Model-T
+and in BASIC type
+    run "$outnodo"
+EOF
 fi
