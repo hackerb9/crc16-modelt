@@ -59,14 +59,15 @@ function emitbasicdecode() {
     #   which allows me to quote DEL (7F) using "/\xFF".
     # I subtract 128 instead of adding it, just for aesthetics.
     # I double check the filesize matches the header length.
-    cat <<'EOF'
+    cat <<"EOF"
 13020 CLS:PRINT"loading ML code...";
 13030 READP$:e=0:FORX=1TOLEN(P$):a$=MID$(P$,X,1)
 13040 if a$="/" and e=1 then 13080
 13050 if a$="/" then e=1:goto 13070
-13060 print@20,q:POKEQ,asc(a$)-128*(e=1):Q=Q+1:e=0
+13055 v=asc(a$): if e=1 then v=v-128: goto 13070
+13060 print@20,q:POKEQ,v:Q=Q+1:e=0
 13070 NEXTx:GOTO13030
-13080 IF LN <> (q-TP) THEN ?"Error: Length mismatch,",LN,q-TP: END
+13080 IF LN <> (q-TP) THEN ?:?"Error: Length",LN"<>"q-TP: END
 13090 RETURN
 EOF
 }
