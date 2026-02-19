@@ -169,6 +169,7 @@ WAITEXIT:
 	JZ WAITNEC
 
 	;; Unrecognized machine, let's just pause for about 5 seconds.
+	CALL CLEAREL
 	LXI H, PAUSING
 	CALL PRT0
 
@@ -187,14 +188,17 @@ PAUSE2:	DCX H
 
 WAIT200:
 	CALL CH200
+	CALL CLEAREL
 	RET
 
 WAIT100:
 	CALL CHGET
+	CALL CLEAREL
 	RET
 
 WAITNEC:
 	CALL CHNEC
+	CALL CLEAREL
 	RET
 
 ;; ;;; Print a null-terminated string pointed to by HL.
@@ -352,6 +356,11 @@ FOUNDMATCH:
 	CALL PRT0		; Print *HL 
 	RET
 
+CLEAREL:
+	MVI H, CLRLINE
+	CALL PRT0
+	RET
+
 HEXITS:	DB "0123456789ABCDEF"
 
 M15:	DB " Main 32K ", 134, 0
@@ -360,7 +369,8 @@ M14:	DB "Multiplan ", 134, 0
 CRCIS:	DB "CRC-16 = ", 0
 
 HITAKEY: DB "        <Hit any key to exit.>", 0
-PAUSING: DB "\r", 1BH, "KPausing...", 0 	; Esc+K is clear to end of line
+CLRLINE: DB "\r", 1BH, "K", 0		; Esc+K is clear to end of line
+PAUSING: DB "Pausing...", 0
 
 HIGHASCIITABLE:
 	DW C128, C129, C130, C131, C132, C133, C134, C135
@@ -387,7 +397,7 @@ QIDTANDY102US:	DB 130, "102 (US)", 0
 QIDTANDY102UK:	DB 130, "102 (UK)", 0
 QIDM10EU:	DB 131, "(EU)", 0
 QIDM10NA:	DB 131, "(NA)", 0
-QIDPC8201A:	DB 132, "8201A", 0
+QIDPC8201:	DB 132, "8201", 0
 QIDPC8300:	DB 132, "8300", 0
 QIDBECKMAN:	DB 132, "8300 Beckman E3.2", 0
 QIDTANDY600:	DB 130, "600 BASIC", 0
@@ -406,7 +416,7 @@ QIDTABLE:
 	DB 144, 254
 	DW QIDTANDY600
 	DB 148, 101
-	DW QIDPC8201A
+	DW QIDPC8201
 	DB 148, 235
 	DW QIDPC8300
 	DB 167, 83
