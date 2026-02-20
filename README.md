@@ -82,48 +82,7 @@ detected"](adjunct/crc_v3.txt).
 
 ## Table of ROM checksums
 
-Here are the CRC-16 values for all of the original Model T ROMs which
-have been reported so far. If you find one not listed, please open an
-issue so it can be added to the list. Ideally, include a copy of your
-ROM, but at a minimum, please include the calculated CRC and a name to
-call your variation.
-
-| Machine Name                   | ROM size | CRC-16 |
-|:-------------------------------|---------:|:------:|
-| Kyocera Kyotronic KC-85        |      32K | F08D   |
-| TRS-80 Model 100               |      32K | 34F5   |
-| Tandy 200                      |      72K | C061   |
-| Tandy 102 (US)                 |      32K | 1C6F   |
-| Tandy 102 (UK)                 |      32K | 5CF0   |
-| NEC PC-8201A                   |      32K | A48D   |
-| NEC PC-8300                    |     128K | 9FF5   |
-| Olivetti M10 (Europe)          |      32K | 5DD2   |
-| Olivetti M10 (North America)   |      32K | 5D9F   |
-| Televerket Modell 100 (Norway) |      32K | 2A64   |
-
-
-### ROM Variants
-
-Modified ROMs, for example with Y2K patches, will have different
-checksums than the original. The Virtual T emulator can also patch the
-ROMs to show the Virtual T version on the Menu. See also the directory
-of sample ROMs (mirrored from [tandy.wiki][tandy.wiki]) in
-[ROMs](ROMs).
-
-[tandy.wiki]: http://tandy.wiki/Model_T_System_ROMs "List of system ROMs, the builtin software on a chip"
-
-|          Machine Name | ROM size | Y2K patched | Virtual T 1.7 | Y2K+Vir-T 1.7 | LibROM 1.1a |
-|----------------------:|---------:|:-----------:|:-------------:|:-------------:|:-----------:|
-|  Kyocera Kyotronic 85 |      32K | 64A8        | E71C          |               |             |
-| TRS-80 Model 100 (US) |      32K | F6C1        |               | 554D          |             |
-| TRS-80 Model 100 (UK) |      32K |             |               |               | 60F0        |
-|        Tandy 102 (US) |      32K | DE5B        |               | 7DD7          |             |
-|        Tandy 102 (UK) |      32K | 9EC4        |               |               |             |
-|             Tandy 200 |      72K | 9534        |               | 0665          |             |
-|          NEC PC-8201A |      32K | 8CA0        |               | 91C7          |             |
-|           NEC PC-8300 |     128K | E3A9        |               |               |             |
-| Olivetti M10 (Europe) |      32K | 1B13        |               | B753          |             |
-|     Olivetti M10 (US) |      32K | 5E44        |               |               |             |
+Please see [table.md](table.md)
 
 ## CRC-16 in C
 
