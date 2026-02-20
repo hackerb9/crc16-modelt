@@ -1,4 +1,4 @@
-all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO crc16 sanity
+all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO CRC16.CO crc16 sanity
 
 # ORG is the address where the programs are assembled to load.
 # * Can't be too low or 8K machines can't load the file. (About 59500 minimum).
@@ -20,6 +20,10 @@ crc16-bitwise.bin: crc16-bitwise.asm
 crc16-pushpop.bin: crc16-pushpop.asm 
 	asmx -e -w -C8080 -b0 crc16-pushpop.asm && mv crc16-pushpop.asm.bin crc16-pushpop.bin
 
+# Symlink CRC16 to CRCBIT because (at least right now) CRCBYTE is too
+# big to fit within the Tandy 200 memory.
+CRC16.CO: CRCBIT.CO
+	ln -sf CRCBIT.CO CRC16.CO 
 
 # These are the executables for the Kyotronic Sisters (Model T computers)
 CRCBYTE.CO: modelt-bytewise.asm modelt-driver.asm crc16-bytewise.asm crctable.asm
