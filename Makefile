@@ -1,4 +1,4 @@
-all:  	CRC16.CO CRCBIT.CO CRCPSH.CO crc16 sanity
+all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO crc16 sanity
 
 # ORG is the address where the programs are assembled to load.
 # * Can't be too low or 8K machines can't load the file. (About 59500 minimum).
@@ -22,9 +22,9 @@ crc16-pushpop.bin: crc16-pushpop.asm
 
 
 # These are the executables for the Kyotronic Sisters (Model T computers)
-CRC16.CO: modelt-bytewise.asm modelt-driver.asm crc16-bytewise.asm crctable.asm
-	asmx -e -w -b$(ORG) modelt-bytewise.asm && mv modelt-bytewise.asm.bin CRC16.CO
-	cp -p CRC16.CO ../VirtualT/ || true
+CRCBYTE.CO: modelt-bytewise.asm modelt-driver.asm crc16-bytewise.asm crctable.asm
+	asmx -e -w -b$(ORG) modelt-bytewise.asm && mv modelt-bytewise.asm.bin CRCBYTE.CO
+	cp -p CRCBYTE.CO ../VirtualT/ || true
 
 CRCBIT.CO: modelt-bitwise.asm modelt-driver.asm crc16-bitwise.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-bitwise.asm && mv modelt-bitwise.asm.bin CRCBIT.CO
@@ -42,8 +42,8 @@ adjunct/extrasums.txt:
 
 
 .PHONY: sanity
-sanity: CRCPSH.CO CRCBIT.CO CRC16.CO
-	@for f in CRCPSH.CO CRCBIT.CO CRC16.CO; do \
+sanity: CRCPSH.CO CRCBIT.CO CRCBYTE.CO
+	@for f in CRCPSH.CO CRCBIT.CO CRCBYTE.CO; do \
 		echo -n ./sanitycheck "$$f ... "; \
 		./sanitycheck "$$f"; \
 	done
