@@ -12,18 +12,20 @@ routine to calculates the 16-bit Cyclic Redundancy Check.
 
 ## Usage
 
-Use the [CRC16.CO](CRC16.CO) file if you simply want to run a check on
+Use the [CRC16.DO](CRC16.DO) file if you want to run a check on
 your Model T to see if you have a standard ROM installed.
 
-* In BASIC run `CLEAR 256, 59595`. 
-* Download [CRC16.CO](CRC16.CO) to your device. 
-* Run CRC16.CO from the Menu by selecting it and pressing Enter.
+* Download [CRC16.DO](CRC16.DO) to your device. 
+* From BASIC type `run "CRC16"` 
 
-If your Model T is recognized using a quick id check (see below), the 
-machine's name will be shown. The CRC16 checksum will be shown and the
-ROM variant will be looked up in the table below. If your variant is
-not recognized, you'll be encouraged to create a new bug report so
-your ROM can be added to the list. 
+If your Model T is recognized using a quick id check (see below), the
+machine's name will be displayed first. The CRC16 checksum will be
+shown next and the ROM variant will be looked up in the table below.
+If your variant is not recognized, you'll be encouraged to create a
+new bug report so your ROM can be added to the list.
+
+Note: 8K machines may have to use `run "COM:88N1"` and send the file
+over the serial port.
 
 ## Related
 
