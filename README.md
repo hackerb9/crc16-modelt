@@ -38,13 +38,26 @@ see [crc16-8080][crc16-8080].
 ## Source code
 
 The main driver program in [modelt-driver.asm](modelt-driver.asm)
-identifies the type of "Model T" computer — the Model 100 or any of
-the Kyotronic kin — that it is being run on so that the correct ROM
-size and bank selection can be done. If a computer has multiple system
-ROMs, they are concatenated as if they were one long file and a single
-checksum is shown. The Option ROM is currently not examined. The
-driver program calls the `CRC16` and `CRC16_CONTINUE` routines from
-[crc16-8080][crc16-8080].
+identifies the type of "Model T" computer using the Quick ID (see
+below) so that the correct ROM size and bank selection can be done.
+
+The algorithm currently handles two computers specially: The Tandy 200
+and the NEC PC-8300. 
+
+* The NEC PC-8300 has 128K of ROM instead of 32K. Although this
+  appears to developers as four 32K banks, it is on a single chip and
+  so it makes sense to concatenate the banks and checksum them as one
+  long file. A single checksum is shown.
+
+* The Tandy 200 has three separate ROM chips M15, M13, and M14. While
+  the developer sees M15 and M13 as a contiguous address space, this
+  program treats them as distinct. Three checksums will be shown.
+
+Option ROMs are currently not examined but should not be difficult as
+the bank selection scheme is the same as for the Tandy 200. 
+
+The driver program calls the `CRC16` and `CRC16_CONTINUE` routines
+from [crc16-8080][crc16-8080].
 
 The program "CRC16.CO" is created from the file
 [modelt-bytewise.asm][tbytewise], which is a wrapper that sets up the
@@ -54,19 +67,37 @@ necessary .CO file header and INCLUDEs both
 
 ### Alternative .CO programs
 
-There are two other wrapper programs available that have the same
+There are actually three wrapper programs available that have the same
 functionality and simply include alternative CRC16 implementations.
 The only difference is in the file size and speed of execution.
 
-| Source                           | .CO executable         | Compiled Size | Features   |
-|----------------------------------|------------------------|--------------:|------------|
-| [modelt-bytewise.asm][tbytewise] | [CRC16.CO](CRC16.CO)   |    1486 bytes | Fastest    |
-| [modelt-bitwise.asm][tbitwise]   | [CRCBIT.CO](CRCBIT.CO) |    1048 bytes | Reasonable |
-| [modelt-pushpop.asm][tpushpop]   | [CRCPSH.CO](CRCPSH.CO) |     972 bytes | Smallest   |
+| Source                           | .CO executable           | Compiled Size | Features   |
+|----------------------------------|--------------------------|--------------:|------------|
+| [modelt-bytewise.asm][tbytewise] | [CRCBYTE.CO](CRCBYTE.CO) |    1881 bytes | Fastest    |
+| [modelt-bitwise.asm][tbitwise]   | [CRCBIT.CO](CRCBIT.CO)   |    1443 bytes | Reasonable |
+| [modelt-pushpop.asm][tpushpop]   | [CRCPSH.CO](CRCPSH.CO)   |    1367 bytes | Smallest   |
+
+(The file [CRC16.CO](CRC16.CO) is merely a symlink to CRCBIT.CO.)
 
 [tbytewise]: modelt-bytewise.asm
 [tbitwise]: modelt-bitwise.asm
 [tpushpop]: modelt-pushpop.asm
+
+## CRC16.DO
+
+The .DO version of the CRC16.CO is a BASIC wrapper around the .CO file
+created by [co2do][co2do]. Although the file is quite a bit larger,
+using precious RAM and adds significant time due to unpacking, it can
+be transferred easily to any Model T, even if it doesn't have any
+other software installed. 
+
+[co2do]: https://github.com/hackerb9/co2do
+
+The .DO file can be loaded on machines with little memory by using RUN
+"COM:88N1" and sending the file to the Model-T over the serial port at
+9600 baud. The ^Z to signal EOF is included in the file so no special
+program is needed for sending. (Personally, I use `cat CRC16.DO >
+/dev/ttyUSB0`)
 
 ## Specifics: CRC16/XMODEM
 
