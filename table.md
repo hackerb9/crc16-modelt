@@ -3,9 +3,11 @@
 
 Here are the CRC-16 values for all of the original Model T ROMs which
 have been reported so far. If you find one not listed, please open an
-issue so it can be added to the list. Ideally, include a copy of your
-ROM, but at a minimum, please include the calculated CRC and a name to
-call your variation.
+[issue](issues) so it can be added to the list. Ideally, include a
+copy of your ROM, but at a minimum, please include the calculated CRC
+and a name to call your variation.
+
+[issues]: https://github.com/hackerb9/crc16-modelt/issues "Report a bug"
 
 ### Original system ROMs
 
@@ -26,9 +28,10 @@ call your variation.
 
 Modified ROMs, for example with Y2K patches, will have different
 checksums than the original. The Virtual T emulator can also
-dynamically patch the ROMs to show the Virtual T version on the Menu.
-See also the directory of sample ROMs (mirrored from
-[tandy.wiki][tandy.wiki]) in [ROMs](ROMs).
+dynamically patch the ROMs to show the version on the Menu. See also
+the [directory of sample ROMs](ROMs), (mirrored from
+[tandy.wiki][tandy.wiki]).
+
 
 [tandy.wiki]: http://tandy.wiki/Model_T_System_ROMs "List of system ROMs, the builtin software on a chip"
 
