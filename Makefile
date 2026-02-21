@@ -61,7 +61,7 @@ crc16: adjunct/crc16xmodem.h adjunct/crc16.c
 	gcc -Wall -g -o $@ $+
 
 
-table.md: ROMs/ ROMs/* ROMs/other/*
+table.md: ROMs/ ROMs/* ROMs/other/* adjunct/mkmdtable
 	adjunct/mkmdtable > table.md
 
 clean:
