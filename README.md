@@ -95,9 +95,9 @@ other software installed.
 
 The .DO file can be loaded on machines with little memory by using RUN
 "COM:88N1" and sending the file to the Model-T over the serial port at
-9600 baud. The ^Z to signal EOF is included in the file so no special
-program is needed for sending. (Personally, I use `cat CRC16.DO >
-/dev/ttyUSB0`)
+9600 baud. The ^Z to signal EOF is already included in the file so no
+special program is needed for sending. (Personally, I use `cat
+CRC16.DO > /dev/ttyUSB0`).
 
 ## Specifics: CRC16/XMODEM
 
@@ -115,16 +115,20 @@ detected"](adjunct/crc_v3.txt).
 
 ## Table of ROM checksums
 
-Please see [table.md](table.md) for the full list including variants.
 Here is the short list of the original system ROMs for the most
 popular machines.
 
-| Machine Name                   | ROM size | CRC-16 |
-|:-------------------------------|---------:|:------:|
-| TRS-80 Model 100               |      32K | 34F5   |
-| Tandy 200                      |      72K | C061   |
-| Tandy 102 (US)                 |      32K | 1C6F   |
-| NEC PC-8201A                   |      32K | A48D   |
+| Machine Name     | ROM size | CRC-16 |
+|:-----------------|---------:|:------:|
+| TRS-80 Model 100 |      32K | 34F5   |
+| Tandy 102 (US)   |      32K | 1C6F   |
+| Tandy 200 M15    |      32K | 9535   |
+| Tandy 200 M13    |       8K | 3D1A   |
+| Tandy 200 M14    |      32K | 958C   |
+| NEC PC-8201A     |      32K | A48D   |
+
+Please see [table.md](table.md) for the full list of all machines,
+including patched variants.
 
 ## CRC-16 in C
 
