@@ -61,12 +61,12 @@ crc16: adjunct/crc16xmodem.h adjunct/crc16.c
 	gcc -Wall -g -o $@ $+
 
 
+table.md: ROMs/ ROMs/* ROMs/other/*
+	adjunct/mkmdtable > table.md
+
 clean:
 	rm modelt-*.lst modelt-*.bin \
 	   crc16*.bin crc16-*.lst CRC*.CO \
 	   crc16 crctable.asm \
 	   *~ 2>/dev/null || true
-
-
-
 
