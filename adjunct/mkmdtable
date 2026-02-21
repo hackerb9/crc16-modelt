@@ -40,9 +40,9 @@ Modified ROMs, for example with Y2K patches, will have different
 checksums than the original. The Virtual T emulator can also
 dynamically patch the ROMs to show the version on the Menu. See also
 the [directory of sample ROMs](ROMs), (mirrored from
-[tandy.wiki][tandywiki]).
+[tandy.wiki][twiki]).
 
-[tandywiki]: http://tandy.wiki/Model_T_System_ROMs "List of system ROMs, the builtin software on a chip"
+[twiki]: https://tandy.wiki/Model_T_System_ROMs "List of system ROMs, the builtin software on a chip"
 EOF
     local files=$(ls ROMs/*.bin | grep -v orig.bin$)
     makemarkdowntable $files
