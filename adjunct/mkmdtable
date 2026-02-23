@@ -84,7 +84,8 @@ makemarkdowntable() {
     		gsub(/^ +| +$/, "", $1);
 	        gsub(/\+.*/, "", $1);
 	        gsub(/^.*\//, "", $1);
-		printf("| [%s](%s) | %s | %s | %s |\n", $1, file, variant, $2, $3, $4);
+		printf("| [%s](%s) | %s | %s | %s |\n",
+		       $1, file, variant, $2, $3, $4);
             }'   | sort -t\| -k1 | column -t -s\| -o\|
     }
 	
