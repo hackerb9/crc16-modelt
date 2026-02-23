@@ -75,14 +75,18 @@ makemarkdowntable() {
 	echo "|------------|-------|-----:|-------:|"
 	join -j2  <(./crc16 "$@")  <(ls -hs1 "$@")  |
 	    awk '{
-	        sub(/\+/, "|", $1);
-	        gsub(/^.*\//, "", $1);
-    		gsub(/\.bin$/, "", $1);	
+	    	file=$1;
+	        variant=gensub(/.*\+/, "", "1", $1);
+    		gsub(/^_+|_+$/, "", variant);
+    		gsub(/_+/, ", ", variant); 
+    		gsub(/\.bin$/, "", variant);	
     		gsub(/_+/, " ", $1); 
     		gsub(/^ +| +$/, "", $1);
-		print "|" $1 " | " $2 " | " $3 "|";
+	        gsub(/\+.*/, "", $1);
+	        gsub(/^.*\//, "", $1);
+		printf("| [%s](%s) | %s | %s | %s |\n", $1, file, variant, $2, $3, $4);
             }'  
-    } | column -t -s\| -o\|
+    }
 	
 }
 
