@@ -1,7 +1,7 @@
 Kyocera_Kyotronic_85+VirT-1.7_no-Y2K  E71C	32K
 TRS-80_Model_100+VirT-1.7             554D	32K
 Tandy_102_US+VirT-1.7                 7DD7	32K
-Tandy_200+VirT-1.7                    3E00	72K
+Tandy_200+M15_VirT-1.7                3E00	32K
 NEC_PC-8201+A_VirT-1.7                91C7	32K
 NEC_PC-8300+VirT-1.7                  D4BA	128K
 Olivetti_M10_Europe+VirT-1.7          B753	32K
