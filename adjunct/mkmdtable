@@ -17,8 +17,8 @@ header() {
 Here are the CRC-16/XModem values for all of the Model T ROMs which
 have been reported so far. If you find one not listed, please open an
 [issue](issues) so it can be added to the list. Ideally, include a
-copy of your ROM, but at a minimum, please include the calculated CRC
-and a name to call your variation.
+copy of your ROM, but at a minimum, please send the calculated CRC
+and a name to call your ROM variant.
 
 [issues]: https://github.com/hackerb9/crc16-modelt/issues "Report a bug"
 
