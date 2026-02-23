@@ -36,13 +36,22 @@ variants() {
     echo
     echo '### ROM Variants'
 cat <<-EOF
-Modified ROMs, for example with Y2K patches, will have different
-checksums than the original. The Virtual T emulator can also
-dynamically patch the ROMs to show the version on the Menu. See also
-the [directory of sample ROMs](ROMs), (mirrored from
-[tandy.wiki][twiki]).
+Modified ROMs will have different checksums than the original. Examples:
+* Y2K patches
 
-[twiki]: https://tandy.wiki/Model_T_System_ROMs "List of system ROMs, the builtin software on a chip"
+* The Virtual T emulator can dynamically update the ROMs to show the
+  version on the main menu. 
+
+* Stephen Adolph's "[REX Classic][rexclassic]" Option ROM could
+  replace the system ROM with a modified version for "[Main ROM
+  Management][rexmanagement]".
+
+[rexclassic]: https://github.com/bkw777/REX_Classic "Rex Classic Respin by BKW"
+[rexmanagement]: https://bitchin100.com/wiki/index.php?title=Main_ROM_Management_Feature
+
+See also this project's [directory of sample ROMs](ROMs). The files
+are mostly mirrored from https://tandy.wiki/), but renamed so that
+variations are listed after a plus sign.
 EOF
     local files=$(ls ROMs/*.bin | grep -v orig.bin$)
     makemarkdowntable $files
