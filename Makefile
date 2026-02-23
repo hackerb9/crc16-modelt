@@ -21,26 +21,25 @@ crc16-pushpop.bin: crc16-pushpop.asm
 	asmx -e -w -C8080 -b0 crc16-pushpop.asm && mv crc16-pushpop.asm.bin crc16-pushpop.bin
 
 # M/L encoded as BASIC for easy loading on any machine. (RUN "COM:...")
-CRC16.DO: CRC16.CO
+CRC16.DO: CRC16.CO adjunct/co2do
 	adjunct/co2do -q CRC16.CO
+	cp -p CRC16.DO ../VirtualT/ || true
 
 # Symlink CRC16 to CRCBIT because (at least right now) CRCBYTE is too
 # big to fit within the Tandy 200 memory.
 CRC16.CO: CRCBIT.CO
 	ln -sf CRCBIT.CO CRC16.CO 
+	cp -p CRC16.CO ../VirtualT/ || true
 
 # These are the executables for the Kyotronic Sisters (Model T computers)
 CRCBYTE.CO: modelt-bytewise.asm modelt-driver.asm crc16-bytewise.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-bytewise.asm && mv modelt-bytewise.asm.bin CRCBYTE.CO
-	cp -p CRCBYTE.CO ../VirtualT/ || true
 
 CRCBIT.CO: modelt-bitwise.asm modelt-driver.asm crc16-bitwise.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-bitwise.asm && mv modelt-bitwise.asm.bin CRCBIT.CO
-	cp -p CRCBIT.CO ../VirtualT/ || true
 
 CRCPSH.CO: modelt-pushpop.asm modelt-driver.asm crc16-pushpop.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-pushpop.asm && mv modelt-pushpop.asm.bin CRCPSH.CO
-	cp -p CRCPSH.CO ../VirtualT/ || true
 
 crctable.asm: mkcrctable.awk crc16 ROMs/* ROMs/ adjunct/extrasums.txt
 	./mkcrctable.awk > crctable.asm
