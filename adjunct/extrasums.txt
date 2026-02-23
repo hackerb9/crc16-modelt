@@ -1,7 +1,7 @@
-E71C	Kyocera_Kyotronic_85+VirT_1.7,_no_Y2K
-554D	TRS-80_Model_100+VirT_1.7
-7DD7	Tandy_102_US+VirT_1.7
-3E00	Tandy_200+VirT_1.7
-91C7	NEC_PC-8201A+VirT_1.7
-D4BA	NEC_PC-8300+VirT_1.7
-B753	Olivetti_M10_Europe+VirT_1.7
+E71C	Kyocera_Kyotronic_85+VirT-1.7_no-Y2K
+554D	TRS-80_Model_100+VirT-1.7
+7DD7	Tandy_102_US+VirT-1.7
+3E00	Tandy_200+VirT-1.7
+91C7	NEC_PC-8201+A_VirT-1.7
+D4BA	NEC_PC-8300+VirT-1.7
+B753	Olivetti_M10_Europe+VirT-1.7
