@@ -1,4 +1,4 @@
-all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO CRC16.CO CRC16.DO crc16 sanity table.md
+all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO CRC16.CO CRC16.DO crc16 table.md sanity
 
 # ORG is the address where the programs are assembled to load.
 # * Can't be too low or 8K machines can't load the file. (About 59500 minimum).
