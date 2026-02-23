@@ -134,7 +134,7 @@ including patched variants.
 
 One can use the [included C program](adjunct/crc16.c) to double-check
 that the assembly language is getting the right answer or to create a
-table of expected values (see below). Compilation can be done using:
+[table of expected values](table.md). Compilation can be done using:
 
 ``` shell
 gcc -Wall -g -o crc16 adjunct/crc16xmodem.h adjunct/crc16.c
