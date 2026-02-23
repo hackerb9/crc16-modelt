@@ -22,7 +22,7 @@ crc16-pushpop.bin: crc16-pushpop.asm
 
 # M/L encoded as BASIC for easy loading on any machine. (RUN "COM:...")
 CRC16.DO: CRC16.CO
-	adjunct/co2do CRC16.CO
+	adjunct/co2do -q CRC16.CO
 
 # Symlink CRC16 to CRCBIT because (at least right now) CRCBYTE is too
 # big to fit within the Tandy 200 memory.
@@ -51,12 +51,13 @@ adjunct/extrasums.txt:
 
 .PHONY: sanity
 sanity: CRCPSH.CO CRCBIT.CO CRCBYTE.CO
-	@for f in CRCPSH.CO CRCBIT.CO CRCBYTE.CO; do \
+	@echo; \
+	for f in CRCPSH.CO CRCBIT.CO CRCBYTE.CO; do \
 		echo -n ./sanitycheck "$$f ... "; \
 		./sanitycheck "$$f"; \
 	done
 
-# This is a C program for checking that the CRC-16 is being calculated correctly. 
+# This is a C program for checking that the CRC-16 is being calculated correctly
 crc16: adjunct/crc16xmodem.h adjunct/crc16.c
 	gcc -Wall -g -o $@ $+
 
