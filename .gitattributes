@@ -1,0 +1,9 @@
+*.DO eol=crlf
+*.CO binary
+*.bin binary
+
+# CRC16.DO is generated from CRC16.CO by mkcrctable
+CRC16.DO binary
+
+# table.md is generated from ROMs/*.bin by mkmdtable
+table.md binary
