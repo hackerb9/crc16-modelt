@@ -1,4 +1,4 @@
-all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO CRC16.CO CRC16.DO crc16 sanity
+all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO CRC16.CO CRC16.DO crc16 sanity table.md
 
 # ORG is the address where the programs are assembled to load.
 # * Can't be too low or 8K machines can't load the file. (About 59500 minimum).
@@ -61,6 +61,7 @@ crc16: adjunct/crc16xmodem.h adjunct/crc16.c
 	gcc -Wall -g -o $@ $+
 
 
+# List of all ROMs linked by documentation
 table.md: ROMs/ ROMs/* ROMs/other/* adjunct/mkmdtable
 	adjunct/mkmdtable > table.md
 
