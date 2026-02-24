@@ -27,6 +27,7 @@ CHNEC	EQU	174DH		; wait for key - NEC PC-8201 & 8300
 	;; to print the make and model . This saves bytes in the CRC
 	;; lookup table as it only needs to contain variations (such
 	;; as "North America", "Y2K patched" or "Virtual-T 7.1").
+	CALL CLEAREL
 	LXI H, QUICKIDSTR
 	CALL PRT0
 	LXI H, 1
@@ -366,7 +367,7 @@ HEXITS:	DB "0123456789ABCDEF"
 M15:	DB " Main 32K ", 134, 0
 M13:	DB " Main  8K ", 134, 0
 M14:	DB "Multiplan ", 134, 0
-CRCIS:	DB "CRC-16 = ", 0
+CRCIS:	DB "CRC-16: ", 0
 
 HITAKEY: DB "        <Hit any key to exit.>", 0
 CLRLINE: DB "\r", 1BH, "K", 0		; Esc+K is clear to end of line
