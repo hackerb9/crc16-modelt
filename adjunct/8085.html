@@ -1,0 +1,6699 @@
+<!-- From Bitchin100, hand edited and cleaned up by b9 -->
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<html>
+  <head>
+    <style>
+      table {
+	border-collapse: collapse;
+	border: 2px solid black;
+	td { 
+	  border: 1px solid black;
+	  text-align: center;
+	}
+	thead {
+	  background: darkseagreen;
+	  font-weight: 800;
+	  td { border: none; }
+	}
+      }
+      table.greenbar { 
+	thead {
+	  tr:nth-child(2) td { font-weight: 400; width: 2em; }
+	}
+	tbody {
+	  td { text-align: center; }
+	  td:nth-child(3) {
+	    text-align: left;
+	    padding-left: 1em;
+	    padding-right: 1em;
+	  }
+	  tr { background: snow; }
+	  tr:nth-child(4n+1), tr:nth-child(4n+0){ 
+	    background: #D0F0D0;
+	  }
+	}
+      }
+      table.flags { 
+	margin-left: 10%;
+	border: 1px solid black;
+	td { width: 1em;
+	     text-align: center;
+	     border-top: none;
+	     border-bottom: none;
+	   }
+	tr:first-child { 
+	  border-bottom: 1px dashed gray;
+	}
+      }
+      table.cycles { 
+	tbody {
+	  td { text-align: center; }
+	  td:nth-child(3) {
+	    text-align: left;
+	    padding-left: 1em;
+	    padding-right: 1em;
+	  }
+	  tr { background: snow; }
+	  tr:nth-child(4n+1), tr:nth-child(4n+0){ 
+	    background: #D0F0D0;
+	  }
+	}
+      }
+    </style>
+  </head>
+
+  <body>
+
+<h1>8085 Reference</h1>
+
+<h2>Contents</h2>
+<ul>
+  <li><a href="#8085_Instruction_Mnemonic_Meanings">1 8085 Instruction Mnemonic Meanings</a>
+    <ul>
+      <li><a href="#Data_Transfer_Group">1.1 Data Transfer Group</a></li>
+      <li><a href="#Arithmetic_Group">1.2 Arithmetic Group</a></li>
+      <li><a href="#Logical_Group">1.3 Logical Group</a></li>
+      <li><a href="#Stack,_Input/Output,_&amp;_Machine_Control_Group">1.4 Stack, Input/Output, &amp; Machine Control Group</a></li>
+      <li><a href="#Branch_Group">1.5 Branch Group</a></li>
+    </ul>
+  </li>
+  <li><a href="#8085_Instruction_Actions_by_Functional_Group">2 8085 Instruction Actions by Functional Group</a>
+    <ul>
+      <li><a href="#Data_Transfer_Group_2">2.1 Data Transfer Group</a></li>
+      <li><a href="#Arithmetic_Group_2">2.2 Arithmetic Group</a></li>
+      <li><a href="#Branch_Group_2">2.3 Branch Group</a></li>
+      <li><a href="#Logical_Group_2">2.4 Logical Group</a></li>
+      <li><a href="#Stack,_Input/Output,_&amp;_Machine_Control_Group_2">2.5 Stack, Input/Output, &amp; Machine Control Group</a></li>
+    </ul>
+  </li>
+  <li><a href="#8085_Instructions_by_Mnemonic">3 8085 Instructions by Mnemonic</a></li>
+  <li><a href="#8085_Machine_Cycles_by_Functional_Group">4 8085 Machine Cycles by Functional Group</a>
+    <ul>
+      <li><a href="#Data_Transfer_Group_3">4.1 Data Transfer Group</a></li>
+      <li><a href="#Arithmetic_Group_3">4.2 Arithmetic Group</a></li>
+      <li><a href="#Logical_Group_3">4.3 Logical Group</a></li>
+      <li><a href="#Stack,_Input/Output,_&amp;_Machine_Control_Group_3">4.4 Stack, Input/Output, &amp; Machine Control Group</a></li>
+      <li><a href="#Branch_Group_3">4.5 Branch Group</a></li>
+    </ul>
+  </li>
+  <li><a href="#8085_Instruction_Mnemonics_by_Op-code">5 8085 Instruction Mnemonics by Op-code</a></li>
+  <li><a href="#Z80_Equivalent_Mnemonics">6 Z80 Equivalent Mnemonics</a></li>
+</ul>
+
+<h1>Abbreviations Used</h1>
+<dl>
+  <dt>reg </dt>   <dd>Any of the 8-Bit registers A,B,C,D,E,H,L.</dd>
+  <dt>dreg </dt>
+  <dt>sreg </dt>  <dd><abbr>reg</abbr> Used as Destination or Source in a move.</dd>
+  <dt>byte</dt>    <dd>Any 8-bit value.</dd>
+  <dt>word</dt>    <dd>Any 16-bit value.</dd>
+  <dt>PC  </dt>    <dd>Program Counter.</dd>
+  <dt>SP  </dt>    <dd>Stack Pointer.</dd>
+  <dt>RM  </dt>    <dd>Register A,B,C,D,E,H,L or memory M pointed by HL.</dd>
+  <dt>BD  </dt>    <dd>Either register pair BC or DE  (B=BC, D=DE).</dd>
+  <dt>rp  </dt>    <dd>Any Register Pair (B=BC, D=DE, H=HL, SP=SP).</dd>
+  <dt>drp  </dt>
+  <dt>srp  </dt>   <dd><abbr>rp</abbr> used as Destination or Source in a move</dd>
+  <dt>PSW </dt>    <dd>Program Status Word: A pseudo-Register Pair used
+    		by PUSH and POP to refer to the A accumulator and Status Flags
+    		as a single 16-bit unit.</dd>
+  <dt>Addr</dt>    <dd>A 16-Byte address.</dd>
+  <dt>label</dt>   <dd>Name for an address.</dd>
+  <dt>b[x]</dt>    <dd>The contents of the byte at address x.</dd>
+  <dt>w[x]</dt>    <dd>The contents of the bytes at address x and x+1.</dd>
+  <dt>port</dt>    <dd>An I/O port specified by an number from 00h to FFh.</dd>
+  <dt>n</dt>       <dd>A number from 0 to 7 used by RST to calculate an address.</dd>
+</dl>
+
+<h2>Status Flags</h2>
+
+<p>The status flags are treated as an 8-bit register for PUSH/POP PSW.</p>
+<p>
+  <table class="flags">
+  <tbody>
+    <tr>
+      <td>7</td>
+      <td>6</td>
+      <td>5</td>
+      <td>4</td>
+      <td>3</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><p>S</p></td>
+      <td><p>Z</p></td>
+      <td><p>K</p></td>
+      <td><p>A</p></td>
+      <td><p>-</p></td>
+      <td><p>P</p></td>
+      <td><p>V</p></td>
+      <td><p>C</p></td>
+    </tr>
+</tbody></table>
+</p>
+
+<p>The flags are:</p>
+
+<p>
+<table class="greenbar">
+  <thead>
+    <tr><th>Bit</th><th>Flag</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td> 0</td><td> Cf </td><td>Carry flag; set to carry out of bit 7 in result</td></tr>
+    <tr><td>1</td><td>(Vf)</td><td> Undocumented signed overflow flag^* (8085 only, on 8080 bit is always 1 in PSW)</td></tr>
+    <tr><td>2</td><td> Pf </td><td>Parity flag; set if the number of bits in the result is even, and reset if it's odd</td></tr>
+    <tr><td>3</td><td> - </td><td>No flag, bit is always 0 in PSW</td></tr>
+    <tr><td>4</td><td>(Af)</td><td> Auxiliary Carry (A[C]) flag; set to carry out of bit 3 in result</td></tr>
+    <tr><td>5</td><td>(Kf)</td><td> Undocumented signed Underflow Indicator (UI/X5) and comparison flag^* (8085 only, on 8080 bit is always 0 in PSW)</td></tr>
+    <tr><td>6</td><td> Zf </td><td>Zero flag; set if the result was zero, reset otherwise</td></tr>
+    <tr><td>7</td><td> Sf </td><td>Sign flag; set to bit 7 of result</td></tr>
+  </tbody>
+</table>
+</p>
+
+<h1>8085 Instruction Mnemonic Meanings</h1>
+
+<h2>Data Transfer Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan=2><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p>Zf</p>
+      </td>
+      <td><p>Cf</p>
+      </td>
+      <td><p>Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>MOV</p>
+      </td>
+      <td><p>dreg, sreg</p>
+      </td>
+      <td><p>MOVe</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>MVI</p>
+      </td>
+      <td><p>reg, byte</p>
+      </td>
+      <td><p>MoVe Immediate</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>MVX</p>
+      </td>
+      <td><p>drp, srp</p>
+      </td>
+      <td><p>MoVe eXtended-register (pseudo for high &amp;
+	  low MOVs)</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>LXI</p>
+      </td>
+      <td><p>rp, word</p>
+      </td>
+      <td><p>Load eXtended-register Immediate</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>XCHG</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>eXCHanGe HL with DE</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDA</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>LoaD Accumulator direct</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>STA</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>STore Accumulator direct</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDAX</p>
+      </td>
+      <td><p>B</p>
+      </td>
+      <td><p>LoaD Accumulator indirect via eXtended-register
+	  BC</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>STAX</p>
+      </td>
+      <td><p>B</p>
+      </td>
+      <td><p>Store Accumulator indirect via eXtended-register BC</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDAX</p>
+      </td>
+      <td><p>D</p>
+      </td>
+      <td><p>LoaD Accumulator indirect via eXtended-register DE</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>STAX</p>
+      </td>
+      <td><p>D</p>
+      </td>
+      <td><p>Store Accumulator indirect via eXtended-register DE</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>LHLD</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>Load HL Direct</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLD</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>Store HL Direct</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr>
+      <td><p>LHLI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Load HL Indirect via extended register DE</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>SHLI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Store HL Indirect via extended register DE</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>.</p>
+</td></tr></tbody></table>
+
+<h2>Arithmetic Group</h2>
+<table class="greenbar">
+  <thead><tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p>Zf</p>
+      </td>
+      <td><p>Cf</p>
+      </td>
+      <td><p>Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>    <tr>
+      <td><p>ADD</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ADD</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>ADI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ADd Immediate</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>ADC</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ADd with Carry</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>ACI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>Add with Carry Immediate</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>SUB</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>SUBtract</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>SUI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>SUbtract Immediate</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>SBB</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>SuBtract with Borrow</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>SBI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>Subtract with Borrow Immediate</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>DAA</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Decimal Adjust Accumulator</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>INR</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>INcrement Register</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p>x</p>
+      </td>
+      <td><p>x</p>
+    </td></tr>
+    <tr>
+      <td><p>INX</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>INcrement eXtended-register</p>
+      </td>
+      <td><p>.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DCR</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>DeCrement Register</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>DCX</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>DeCrement eXtended-register</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DAD</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>Dual-register ADd to HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>HLMBC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HL Minus BC</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">h</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>DEHL</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>DE from HL plus byte</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>DESP</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>DE from SP plus byte</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+<h2>Logical Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>CMP</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>CoMPare</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>CPI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ComPare Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>CMA</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>CoMplement Accumulator</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CMC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>CoMplement Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>SeT Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">1</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLR</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Shift HL Right, extend sign</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>ANA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ANd Accumulator</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ANI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ANd Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ORA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>OR Accumulator</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ORI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>OR Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>XRA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>eXclusive oR Accumulator</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>XRI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>eXclusive oR Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>RAL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate Accumulator Left through carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RAR</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate Accumulator Right through carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RLC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate accumulator Left Circular</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RRC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate accumulator Right Circular</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>RDEL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate DE Left through carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+<h2>Stack, Input/Output, &amp; Machine Control Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>PUSH</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>PUSH on stack</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>POP</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>POP off stack</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SPHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Stack Pointer from HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>XTHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>eXchange Top of stack with HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>IN</p>
+      </td>
+      <td><p>port</p>
+      </td>
+      <td><p>INput from port</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>OUT</p>
+      </td>
+      <td><p>port</p>
+      </td>
+      <td><p>OUTput to port</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Disable Interrupts</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>EI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Enable Interrupts</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p><a href="https://bitchin100.com/wiki/index.php?title=8085_RIM_Instruction" title="8085 RIM Instruction">RIM</a></p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Read Interrupt Mask</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SIM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Set Interrupt Mask</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>NOP</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>No OPeration</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>HLT</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HaLT</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+<h2>Branch Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>JMP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>JuMP unconditionally</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JNZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Non-Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Positive</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Minus</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JNC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if No Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JTM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if True sign Minus</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JTP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if True sign Positive</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JPE</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Parity Even</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JPO</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Parity Odd</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CALL</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>CALL unconditionally</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CNZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Non-Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Positive</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Minus</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CNC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if No Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CPE</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Parity Even</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CPO</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Parity Odd</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RET</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>RETurn unconditionally</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RZ</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RNZ</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Non-Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RP</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Positive</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Minus</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RNC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if No Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RPE</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Parity Even</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RPO</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Parity Odd</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>PCHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Program Counter from HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RST</p>
+      </td>
+      <td><p>n</p>
+      </td>
+      <td><p>ReSTart</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>RSTV</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>ReSTart if oVerflow</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+
+<h1>8085 Instruction Actions by Functional Group</h1>
+
+<h2>Data Transfer Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>MOV</p>
+      </td>
+      <td><p>dreg, sreg</p>
+      </td>
+      <td><p>dreg⇐sreg</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>MVI</p>
+      </td>
+      <td><p>reg, byte</p>
+      </td>
+      <td><p>reg⇐byte</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>MVX</p>
+      </td>
+      <td><p>drp, srp</p>
+      </td>
+      <td><p>drp⇐srp (pseudo for high &amp; low MOVs)</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LXI</p>
+      </td>
+      <td><p>rp, word</p>
+      </td>
+      <td><p>rp⇐word</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>XCHG</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HL⇆DE</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDA</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>A⇐b[addr]</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STA</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>b[addr]⇐A</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDAX</p>
+      </td>
+      <td><p>B</p>
+      </td>
+      <td><p>A⇐b[BC]</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STAX</p>
+      </td>
+      <td><p>B</p>
+      </td>
+      <td><p>b[BC]⇐A</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDAX</p>
+      </td>
+      <td><p>D</p>
+      </td>
+      <td><p>A⇐b[DE]</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STAX</p>
+      </td>
+      <td><p>D</p>
+      </td>
+      <td><p>b[DE]⇐A</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LHLD</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>HL⇐w[addr]</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLD</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>w[addr]⇐HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LHLI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HL⇐w[DE]</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>SHLI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>w[DE]⇐HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+<h2>Arithmetic Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>ADD</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>A⇐A+reg</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ADI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>A⇐A+byte</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ADC</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>A⇐A+reg+Cf</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ACI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>A⇐A+byte+Cf</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>SUB</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>A⇐A-reg</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>SUI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>A⇐A-byte</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>SBB</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>A⇐A-reg-Cf</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>SBI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>A⇐A-byte-Cf</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>DAA</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>in A3..A0 and A7..A4: if &gt;9 then +6, carry
+	  to next</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>INR</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>reg⇐reg+1</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>INX</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>rp⇐rp+1</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DCR</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>reg⇐reg-1</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>DCX</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>rp⇐rp-1</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DAD</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>HL⇐HL+rp</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>HLMBC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HL⇐HL-BC</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">h</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>DEHL</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>DE⇐HL+byte</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>DESP</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>DE⇐SP+byte</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+<h2>Branch Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>JMP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Zf=1 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JNZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Zf=0 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Sf=0 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Sf=1 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Cf=1 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JNC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Cf=0 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JTM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if TSf=1 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JTP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if TSf=0 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JPE</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Pf=1 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JPO</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Pf=0 then PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CALL</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>SP⇐SP-2, w[SP]⇐PC+3, PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Zf=1 then SP⇐SP-2, w[SP]⇐PC+3,
+	  PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CNZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Zf=0 then SP⇐SP-2, w[SP]⇐PC+3,
+	  PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Sf=0 then SP⇐SP-2, w[SP]⇐PC+3,
+	  PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Sf=1 then SP⇐SP-2, w[SP]⇐PC+3,
+	  PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Cf=1 then SP⇐SP-2, w[SP]⇐PC+3,
+	  PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CNC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Cf=0 then SP⇐SP-2, w[SP]⇐PC+3,
+	  PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CPE</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Pf=1 then SP⇐SP-2, w[SP]⇐PC+3,
+	  PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CPO</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>if Pf=0 then SP⇐SP-2, w[SP]⇐PC+3,
+	  PC⇐label</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RET</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RZ</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Zf=1 then PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RNZ</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Zf=0 then PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RP</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Sf=0 then PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Sf=1 then PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Cf=1 then PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RNC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Cf=0 then PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RPE</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Pf=1 then PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RPO</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Pf=0 then PC⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>PCHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>PC⇐HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RST</p>
+      </td>
+      <td><p>n</p>
+      </td>
+      <td><p>SP⇐SP-2, w[SP]⇐PC+1, PC⇐n*8 where n
+	  is 0 to 7</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RSTV</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>if Vf=1 then SP⇐SP-2, w[SP]⇐PC+1,
+	  PC⇐8*8</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+<h2>Logical Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>CMP</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>T⇐A-reg</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>CPI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>T⇐A-byte</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>CMA</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>A⇐1's complement of A</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CMC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Cf⇐1-Cf</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Cf⇐1</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">1</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLR</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>H7⇒H6⇒H5⇒H4⇒H3⇒H2⇒H1⇒H0<br/>
+	  L7⇒L6⇒L5⇒L4⇒L3⇒L2⇒L1⇒L0⇒Cf
+	</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>ANA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>A⇐A AND reg</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ANI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>A⇐A AND byte</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ORA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>A⇐A Inclusive OR reg</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ORI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>A⇐A Inclusive OR byte</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>XRA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>A⇐A Exclusive OR reg</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>XRI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>A⇐A Exclusive OR byte</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>RAL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Cf⇐A7⇐A6⇐A5⇐A4⇐A3⇐A2⇐A1⇐A0⇐Cf</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RAR</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Cf⇒A7⇒A6⇒A5⇒A4⇒A3⇒A2⇒A1⇒A0⇒Cf</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RLC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>A7⇐A6⇐A5⇐A4⇐A3⇐A2⇐A1⇐A0⇐A7 and Cf⇐A7</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RRC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>A7⇒A6⇒A5⇒A4⇒A3⇒A2⇒A1⇒A0⇒A7 and A0⇒Cf</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RDEL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Cf⇐D7⇐D6⇐D5⇐D4⇐D3⇐D2⇐D1⇐D0<br/>
+	  D0⇐E7⇐E6⇐E5⇐E4⇐E3⇐E2⇐E1⇐E0⇐Cf</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+<h2>Stack, Input/Output, &amp; Machine Control Group</h2>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>PUSH</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>SP⇐SP-2, w[SP]⇐rp</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>POP</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>rp⇐w[SP], SP⇐SP+2</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SPHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>SP⇐HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>XTHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HL⇆w[SP]</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>IN</p>
+      </td>
+      <td><p>port</p>
+      </td>
+      <td><p>A⇐data from port</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>OUT</p>
+      </td>
+      <td><p>port</p>
+      </td>
+      <td><p>data to port⇐A</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>disable interrupts</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>EI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>enable interrupts</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RIM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>A⇐interrupt mask</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SIM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>interrupt mask⇐A</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>NOP</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>do nothing</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>HLT</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>halt 8085 processor</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+
+<h1 style="page-break-before: always">8085 Instructions by Mnemonic</h1>
+<table class="greenbar">
+  <thead>
+    <tr>
+      <td colspan="2" rowspan="2"><p>Instruction</p>
+      </td>
+      <td rowspan="2"><p>Mnemonic Meaning</p>
+      </td>
+      <td colspan="4"><p>Flags</p>
+    </td></tr>
+    <tr>
+      <td><p align="CENTER">Zf</p>
+      </td>
+      <td><p align="CENTER">Cf</p>
+      </td>
+      <td><p align="CENTER">Pf</p>
+      </td>
+      <td><p>Sf</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>ACI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>Add with Carry Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ADC</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ADd with Carry</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ADD</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ADD</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ADI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ADd Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ANA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ANd Accumulator</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ANI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ANd Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>CALL</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>CALL unconditionally</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Minus</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CMA</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>CoMplement Accumulator</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CMC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>CoMplement Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CMP</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>CoMPare</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>CNC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if No Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CNZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Non-Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Positive</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CPE</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Parity Even</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CPI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ComPare Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>CPO</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Parity Odd</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>CZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DAA</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Decimal Adjust Accumulator</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>DAD</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>Dual-register ADd to HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DCR</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>DeCrement Register</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>DCX</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>DeCrement eXtended-register</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DEHL</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>DE from HL plus byte</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DESP</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>DE from SP plus byte</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>DI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Disable Interrupts</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>EI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Enable Interrupts</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>HLMBC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HL Minus BC</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">h</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>HLT</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HaLT</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>IN</p>
+      </td>
+      <td><p>port</p>
+      </td>
+      <td><p>INput from port</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>INR</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>INcrement Register</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>INX</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>INcrement eXtended-register</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Minus</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JMP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>JuMP unconditionally</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JNC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if No Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JNZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Non-Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Positive</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JPE</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Parity Even</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JPO</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Parity Odd</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JTM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if True sign Minus</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JTP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if True sign Positive</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>JZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDA</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>LoaD Accumulator direct</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDAX</p>
+      </td>
+      <td><p>B</p>
+      </td>
+      <td><p>LoaD Accumulator indirect via eXtended-register
+	  BC</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LDAX</p>
+      </td>
+      <td><p>D</p>
+      </td>
+      <td><p>LoaD Accumulator indirect via eXtended-register
+	  DE</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LHLD</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>Load HL Direct</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LHLI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Load HL Indirect via extended register DE</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>LXI</p>
+      </td>
+      <td><p>rp, word</p>
+      </td>
+      <td><p>Load eXtended-register Immediate</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>MOV</p>
+      </td>
+      <td><p>dreg, sreg</p>
+      </td>
+      <td><p>MOVe</p>
+      </td>
+      <td><p align="CENTER"><br></p>
+      </td>
+      <td><p align="CENTER"><br></p>
+      </td>
+      <td><p align="CENTER"><br></p>
+      </td>
+      <td><p align="CENTER"><br></p>
+    </td></tr>
+    <tr>
+      <td><p>MVI</p>
+      </td>
+      <td><p>reg, byte</p>
+      </td>
+      <td><p>MoVe Immediate</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>MVX</p>
+      </td>
+      <td><p>drp, srp</p>
+      </td>
+      <td><p>MoVe eXtended-register (pseudo for high &amp;
+	  low MOVs)</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>NOP</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>No OPeration</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>ORA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>OR Accumulator</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>ORI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>OR Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>OUT</p>
+      </td>
+      <td><p>port</p>
+      </td>
+      <td><p>OUTput to port</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>PCHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Program Counter from HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>POP</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>POP off stack</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>PUSH</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>PUSH on stack</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RAL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate Accumulator Left through carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RAR</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate Accumulator Right through carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RDEL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate DE Left through carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RET</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>RETurn unconditionally</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RIM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Read Interrupt Mask</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RLC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate accumulator Left Circular</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Minus</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RNC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if No Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RNZ</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Non-Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RP</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Positive</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RPE</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Parity Even</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RPO</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Parity Odd</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RRC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate accumulator Right Circular</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RST</p>
+      </td>
+      <td><p>n</p>
+      </td>
+      <td><p>ReSTart</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RSTV</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>ReSTart if oVerflow</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>RZ</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Zero</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SBB</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>SuBtract with Borrow</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>SBI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>Subtract with Borrow Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLD</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>Store HL Direct</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Store HL Indirect via extended register DE</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLR</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Shift HL Right, extend sign</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SIM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Set Interrupt Mask</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SPHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Stack Pointer from HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STA</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>STore Accumulator direct</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STAX</p>
+      </td>
+      <td><p>B</p>
+      </td>
+      <td><p>Store Accumulator indirect via
+	  eXtended-register BC</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STAX</p>
+      </td>
+      <td><p>D</p>
+      </td>
+      <td><p>Store Accumulator indirect via
+	  eXtended-register DE</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>STC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>SeT Carry</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">1</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>SUB</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>SUBtract</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>SUI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>SUbtract Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>XCHG</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>eXCHanGe HL with DE</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+    </td></tr>
+    <tr>
+      <td><p>XRA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>eXclusive oR Accumulator</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>XRI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>eXclusive oR Immediate</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">0</p>
+      </td>
+      <td><p align="CENTER">x</p>
+      </td>
+      <td><p align="CENTER">x</p>
+    </td></tr>
+    <tr>
+      <td><p>XTHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>eXchange Top of stack with HL</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+      </td>
+      <td><p align="CENTER">.</p>
+</td></tr></tbody></table>
+
+
+<h1>8085 Machine Cycles by Functional Group</h1>
+<p>
+  For cycle counts, <b>EC</b> refers to Essential Cycles.
+  <b>MM</b> refers to additional
+  cycles in the case that register M is involved or the jump
+  condition is met.
+</p>
+
+<h2>Data Transfer Group</h2>
+<table class="cycles">
+  <thead>
+    <tr>
+      <td colspan="2"><p>Instruction</p></td>
+      <td><p>Mnemonic Meaning</p></td>
+      </td>
+      <td><p align="RIGHT">EC +MM<br/>Cycles</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>MOV</p>
+      </td>
+      <td><p>dreg, sreg</p>
+      </td>
+      <td><p>MOVe</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>MVI</p>
+      </td>
+      <td><p>reg, byte</p>
+      </td>
+      <td><p>MoVe Immediate</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>MVX</p>
+      </td>
+      <td><p>drp, srp</p>
+      </td>
+      <td><p>MoVe eXtended-register (pseudo for high &amp;
+	  low MOVs)</p>
+      </td>
+      <td><p align="RIGHT">--</p>
+    </td></tr>
+    <tr>
+      <td><p>LXI</p>
+      </td>
+      <td><p>rp, word</p>
+      </td>
+      <td><p>Load eXtended-register Immediate</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr>
+      <td><p>XCHG</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>eXCHanGe HL with DE</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>LDA</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>LoaD Accumulator direct</p>
+      </td>
+      <td><p align="RIGHT">13</p>
+    </td></tr>
+    <tr>
+      <td><p>STA</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>STore Accumulator direct</p>
+      </td>
+      <td><p align="RIGHT">13</p>
+    </td></tr>
+    <tr>
+      <td><p>LDAX</p>
+      </td>
+      <td><p>B</p>
+      </td>
+      <td><p>LoaD Accumulator indirect via eXtended-register
+	  BC</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>STAX</p>
+      </td>
+      <td><p>B</p>
+      </td>
+      <td><p>Store Accumulator indirect via
+	  eXtended-register BC</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>LDAX</p>
+      </td>
+      <td><p>D</p>
+      </td>
+      <td><p>LoaD Accumulator indirect via eXtended-register
+	  DE</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>STAX</p>
+      </td>
+      <td><p>D</p>
+      </td>
+      <td><p>Store Accumulator indirect via
+	  eXtended-register DE</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>LHLD</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>Load HL Direct</p>
+      </td>
+      <td><p align="RIGHT">16</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLD</p>
+      </td>
+      <td><p>addr</p>
+      </td>
+      <td><p>Store HL Direct</p>
+      </td>
+      <td><p align="RIGHT">16</p>
+    </td></tr>
+    <tr>
+      <td><p>LHLI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Load HL Indirect via extended register DE</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>SHLI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Store HL Indirect via extended register DE</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+</td></tr></tbody></table>
+
+<h2>Arithmetic Group</h2>
+<table class="cycles">
+  <thead>
+    <tr>
+      <td colspan="2"><p>Instruction</p></td>
+      <td><p>Mnemonic Meaning</p></td>
+      </td>
+      <td><p align="RIGHT">EC +MM<br/>Cycles</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>ADD</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ADD</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>ADI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ADd Immediate</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>ADC</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ADd with Carry</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>ACI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>Add with Carry Immediate</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>SUB</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>SUBtract</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>SUI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>SUbtract Immediate</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>SBB</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>SuBtract with Borrow</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>SBI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>Subtract with Borrow Immediate</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>DAA</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Decimal Adjust Accumulator</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>INR</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>INcrement Register</p>
+      </td>
+      <td><p align="RIGHT">04 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>INX</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>INcrement eXtended-register</p>
+      </td>
+      <td><p align="RIGHT">06</p>
+    </td></tr>
+    <tr>
+      <td><p>DCR</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>DeCrement Register</p>
+      </td>
+      <td><p align="RIGHT">04 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>DCX</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>DeCrement eXtended-register</p>
+      </td>
+      <td><p align="RIGHT">06</p>
+    </td></tr>
+    <tr>
+      <td><p>DAD</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>Dual-register ADd to HL</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr>
+      <td><p>HLMBC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HL Minus BC</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr>
+      <td><p>DEHL</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>DE from HL plus byte</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>DESP</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>DE from SP plus byte</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+</td></tr></tbody></table>
+
+<h2>Logical Group</h2>
+<table class="cycles">
+  <thead>
+    <tr>
+      <td colspan="2"><p>Instruction</p></td>
+      <td><p>Mnemonic Meaning</p></td>
+      </td>
+      <td><p align="RIGHT">EC +MM<br/>Cycles</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>CMP</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>CoMPare</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>CPI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ComPare Immediate</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>CMA</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>CoMplement Accumulator</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>CMC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>CoMplement Carry</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>STC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>SeT Carry</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>SHLR</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Shift HL Right, extend sign</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>ANA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>ANd Accumulator</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>ANI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>ANd Immediate</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>ORA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>OR Accumulator</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>ORI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>OR Immediate</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>XRA</p>
+      </td>
+      <td><p>reg</p>
+      </td>
+      <td><p>eXclusive oR Accumulator</p>
+      </td>
+      <td><p align="RIGHT">04 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>XRI</p>
+      </td>
+      <td><p>byte</p>
+      </td>
+      <td><p>eXclusive oR Immediate</p>
+      </td>
+      <td><p align="RIGHT">07</p>
+    </td></tr>
+    <tr>
+      <td><p>RAL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate Accumulator Left through carry</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>RAR</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate Accumulator Right through carry</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>RLC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate accumulator Left Circular</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>RRC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate accumulator Right Circular</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>RDEL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Rotate DE Left through carry</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+</td></tr></tbody></table>
+
+<h2>Stack, Input/Output, &amp; Machine Control Group</h2>
+<table class="cycles">
+  <thead>
+    <tr>
+      <td colspan="2"><p>Instruction</p></td>
+      <td><p>Mnemonic Meaning</p></td>
+      </td>
+      <td><p align="RIGHT">EC +MM<br/>Cycles</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>PUSH</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>PUSH on stack</p>
+      </td>
+      <td><p align="RIGHT">12</p>
+    </td></tr>
+    <tr>
+      <td><p>POP</p>
+      </td>
+      <td><p>rp</p>
+      </td>
+      <td><p>POP off stack</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr>
+      <td><p>SPHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Stack Pointer from HL</p>
+      </td>
+      <td><p align="RIGHT">06</p>
+    </td></tr>
+    <tr>
+      <td><p>XTHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>eXchange Top of stack with HL</p>
+      </td>
+      <td><p align="RIGHT">16</p>
+    </td></tr>
+    <tr>
+      <td><p>IN</p>
+      </td>
+      <td><p>port</p>
+      </td>
+      <td><p>INput from port</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr>
+      <td><p>OUT</p>
+      </td>
+      <td><p>port</p>
+      </td>
+      <td><p>OUTput to port</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr>
+      <td><p>DI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Disable Interrupts</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>EI</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Enable Interrupts</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>RIM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Read Interrupt Mask</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>SIM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Set Interrupt Mask</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>NOP</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>No OPeration</p>
+      </td>
+      <td><p align="RIGHT">04</p>
+    </td></tr>
+    <tr>
+      <td><p>HLT</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>HaLT</p>
+      </td>
+      <td><p align="RIGHT">05</p>
+</td></tr></tbody></table>
+
+<h2>Branch Group</h2>
+<table class="cycles">
+  <thead>
+    <tr>
+      <td colspan="2"><p>Instruction</p></td>
+      <td><p>Mnemonic Meaning</p></td>
+      </td>
+      <td><p align="RIGHT">EC +MM<br/>Cycles</p>
+    </td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>JMP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>JuMP unconditionally</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr>
+      <td><p>JZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Zero</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JNZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Non-Zero</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Positive</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Minus</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Carry</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JNC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if No Carry</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JTM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if True sign Minus</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JTP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if True sign Positive</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JPE</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Parity Even</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>JPO</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Jump if Parity Odd</p>
+      </td>
+      <td><p align="RIGHT">07 +03</p>
+    </td></tr>
+    <tr>
+      <td><p>CALL</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>CALL unconditionally</p>
+      </td>
+      <td><p align="RIGHT">18</p>
+    </td></tr>
+    <tr>
+      <td><p>CZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Zero</p>
+      </td>
+      <td><p align="RIGHT">09 +09</p>
+    </td></tr>
+    <tr>
+      <td><p>CNZ</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Non-Zero</p>
+      </td>
+      <td><p align="RIGHT">09 +09</p>
+    </td></tr>
+    <tr>
+      <td><p>CP</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Positive</p>
+      </td>
+      <td><p align="RIGHT">09 +09</p>
+    </td></tr>
+    <tr>
+      <td><p>CM</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Minus</p>
+      </td>
+      <td><p align="RIGHT">09 +09</p>
+    </td></tr>
+    <tr>
+      <td><p>CC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Carry</p>
+      </td>
+      <td><p align="RIGHT">09 +09</p>
+    </td></tr>
+    <tr>
+      <td><p>CNC</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if No Carry</p>
+      </td>
+      <td><p align="RIGHT">09 +09</p>
+    </td></tr>
+    <tr>
+      <td><p>CPE</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Parity Even</p>
+      </td>
+      <td><p align="RIGHT">09 +09</p>
+    </td></tr>
+    <tr>
+      <td><p>CPO</p>
+      </td>
+      <td><p>label</p>
+      </td>
+      <td><p>Call if Parity Odd</p>
+      </td>
+      <td><p align="RIGHT">09 +09</p>
+    </td></tr>
+    <tr>
+      <td><p>RET</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>RETurn unconditionally</p>
+      </td>
+      <td><p align="RIGHT">10</p>
+    </td></tr>
+    <tr>
+      <td><p>RZ</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Zero</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>RNZ</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Non-Zero</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>RP</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Positive</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>RM</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Minus</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>RC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Carry</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>RNC</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if No Carry</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>RPE</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Parity Even</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>RPO</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Return if Parity Odd</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+    </td></tr>
+    <tr>
+      <td><p>PCHL</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>Program Counter from HL</p>
+      </td>
+      <td><p align="RIGHT">06</p>
+    </td></tr>
+    <tr>
+      <td><p>RST</p>
+      </td>
+      <td><p>n</p>
+      </td>
+      <td><p>ReSTart</p>
+      </td>
+      <td><p align="RIGHT">12</p>
+    </td></tr>
+    <tr valign="TOP">
+      <td><p>RSTV</p>
+      </td>
+      <td><p><br></p>
+      </td>
+      <td><p>ReSTart if oVerflow</p>
+      </td>
+      <td><p align="RIGHT">06 +06</p>
+</td></tr></tbody></table>
+<h1>8085 Instruction Mnemonics by Op-code</h1>
+<table class="greenbar" border="1" width="100%" style="font-size:70%">
+  <tbody><tr>
+      <td><p><br></p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x0h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x1h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x2h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x3h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x4h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x5h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x6h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x7h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x8h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">x9h</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">xAh</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">xBh</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">xCh</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">xDh</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">xEh</p>
+      </td>
+      <td><p align="CENTER" style="margin-left: -0.04in">xFh</p>
+    </td></tr>
+    <tr>
+      <td><p>00h-0Fh</p>
+      </td>
+      <td><p>NOP</p>
+      </td>
+      <td><p>LXI B,w</p>
+      </td>
+      <td><p>STAX B</p>
+      </td>
+      <td><p>INX B</p>
+      </td>
+      <td><p>INR B</p>
+      </td>
+      <td><p>DCR B</p>
+      </td>
+      <td><p>MVI B,b</p>
+      </td>
+      <td><p>RLC</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>DSUB<br>HLMBC</p>
+      </td>
+      <td><p>DAD B</p>
+      </td>
+      <td><p>LDAX B</p>
+      </td>
+      <td><p>DCX B</p>
+      </td>
+      <td><p>INR C</p>
+      </td>
+      <td><p>DCR C</p>
+      </td>
+      <td><p>MVI C,b</p>
+      </td>
+      <td><p>RRC</p>
+    </td></tr>
+    <tr>
+      <td><p>10h-1Fh</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>ARHL<br>RRHL<br>SHLR</p>
+      </td>
+      <td><p>LXI D,w</p>
+      </td>
+      <td><p>STAX D</p>
+      </td>
+      <td><p>INX D</p>
+      </td>
+      <td><p>INR D</p>
+      </td>
+      <td><p>DCR D</p>
+      </td>
+      <td><p>MVI D,b</p>
+      </td>
+      <td><p>RAL</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>RDEL<br>RLDE</p>
+      </td>
+      <td><p>DAD D</p>
+      </td>
+      <td><p>LDAX D</p>
+      </td>
+      <td><p>DCX D</p>
+      </td>
+      <td><p>INR E</p>
+      </td>
+      <td><p>DCR E</p>
+      </td>
+      <td><p>MVI E,b</p>
+      </td>
+      <td><p>RAR</p>
+    </td></tr>
+    <tr>
+      <td><p>20h-2Fh</p>
+      </td>
+      <td><p>RIM</p>
+      </td>
+      <td><p>LXI H,w</p>
+      </td>
+      <td><p>SHLD @</p>
+      </td>
+      <td><p>INX H</p>
+      </td>
+      <td><p>INR H</p>
+      </td>
+      <td><p>DCR H</p>
+      </td>
+      <td><p>MVI H,b</p>
+      </td>
+      <td><p>DAA</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>DEHL b<br>LDHI b</p>
+      </td>
+      <td><p>DAD H</p>
+      </td>
+      <td><p>LHLD @</p>
+      </td>
+      <td><p>DCX H</p>
+      </td>
+      <td><p>INR L</p>
+      </td>
+      <td><p>DCR L</p>
+      </td>
+      <td><p>MVI L,b</p>
+      </td>
+      <td><p>CMA</p>
+    </td></tr>
+    <tr>
+      <td><p>30h-3Fh</p>
+      </td>
+      <td><p>SIM</p>
+      </td>
+      <td><p>LXI SP,w</p>
+      </td>
+      <td><p>STA @</p>
+      </td>
+      <td><p>INX SP</p>
+      </td>
+      <td><p>INR M</p>
+      </td>
+      <td><p>DCR M</p>
+      </td>
+      <td><p>MVI M,b</p>
+      </td>
+      <td><p>STC</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>DESP b<br>LDSI b</p>
+      </td>
+      <td><p>DAD SP</p>
+      </td>
+      <td><p>LDA @</p>
+      </td>
+      <td><p>DCX SP</p>
+      </td>
+      <td><p>INR A</p>
+      </td>
+      <td><p>DCR A</p>
+      </td>
+      <td><p>MVI A,b</p>
+      </td>
+      <td><p>CMC</p>
+    </td></tr>
+    <tr>
+      <td><p>40h-4Fh</p>
+      </td>
+      <td><p>MOV B,B</p>
+      </td>
+      <td><p>MOV B,C</p>
+      </td>
+      <td><p>MOV B,D</p>
+      </td>
+      <td><p>MOV B,E</p>
+      </td>
+      <td><p>MOV B,H</p>
+      </td>
+      <td><p>MOV B,L</p>
+      </td>
+      <td><p>MOV B,M</p>
+      </td>
+      <td><p>MOV B,A</p>
+      </td>
+      <td><p>MOV C,B</p>
+      </td>
+      <td><p>MOV C,C</p>
+      </td>
+      <td><p>MOV C,D</p>
+      </td>
+      <td><p>MOV C,E</p>
+      </td>
+      <td><p>MOV C,H</p>
+      </td>
+      <td><p>MOV C,L</p>
+      </td>
+      <td><p>MOV C,M</p>
+      </td>
+      <td><p>MOV C,A</p>
+    </td></tr>
+    <tr>
+      <td><p>50h-5Fh</p>
+      </td>
+      <td><p>MOV D,B</p>
+      </td>
+      <td><p>MOV D,C</p>
+      </td>
+      <td><p>MOV D,D</p>
+      </td>
+      <td><p>MOV D,E</p>
+      </td>
+      <td><p>MOV D,H</p>
+      </td>
+      <td><p>MOV D,L</p>
+      </td>
+      <td><p>MOV D,M</p>
+      </td>
+      <td><p>MOV D,A</p>
+      </td>
+      <td><p>MOV E,B</p>
+      </td>
+      <td><p>MOV E,C</p>
+      </td>
+      <td><p>MOV E,D</p>
+      </td>
+      <td><p>MOV E,E</p>
+      </td>
+      <td><p>MOV E,H</p>
+      </td>
+      <td><p>MOV E,L</p>
+      </td>
+      <td><p>MOV E,M</p>
+      </td>
+      <td><p>MOV E,A</p>
+    </td></tr>
+    <tr>
+      <td><p>60h-6Fh</p>
+      </td>
+      <td><p>MOV H,B</p>
+      </td>
+      <td><p>MOV H,C</p>
+      </td>
+      <td><p>MOV H,D</p>
+      </td>
+      <td><p>MOV H,E</p>
+      </td>
+      <td><p>MOV H,H</p>
+      </td>
+      <td><p>MOV H,L</p>
+      </td>
+      <td><p>MOV H,M</p>
+      </td>
+      <td><p>MOV H,A</p>
+      </td>
+      <td><p>MOV L,B</p>
+      </td>
+      <td><p>MOV L,C</p>
+      </td>
+      <td><p>MOV L,D</p>
+      </td>
+      <td><p>MOV L,E</p>
+      </td>
+      <td><p>MOV L,H</p>
+      </td>
+      <td><p>MOV L,L</p>
+      </td>
+      <td><p>MOV L,M</p>
+      </td>
+      <td><p>MOV L,A</p>
+    </td></tr>
+    <tr>
+      <td><p>70h-7Fh</p>
+      </td>
+      <td><p>MOV M,B</p>
+      </td>
+      <td><p>MOV M,C</p>
+      </td>
+      <td><p>MOV M,D</p>
+      </td>
+      <td><p>MOV M,E</p>
+      </td>
+      <td><p>MOV M,H</p>
+      </td>
+      <td><p>MOV M,L</p>
+      </td>
+      <td><p>HLT</p>
+      </td>
+      <td><p>MOV M,A</p>
+      </td>
+      <td><p>MOV A,B</p>
+      </td>
+      <td><p>MOV A,C</p>
+      </td>
+      <td><p>MOV A,D</p>
+      </td>
+      <td><p>MOV A,E</p>
+      </td>
+      <td><p>MOV A,H</p>
+      </td>
+      <td><p>MOV A,L</p>
+      </td>
+      <td><p>MOV A,M</p>
+      </td>
+      <td><p>MOV A,A</p>
+    </td></tr>
+    <tr>
+      <td><p>80h-8Fh</p>
+      </td>
+      <td><p>ADD B</p>
+      </td>
+      <td><p>ADD C</p>
+      </td>
+      <td><p>ADD D</p>
+      </td>
+      <td><p>ADD E</p>
+      </td>
+      <td><p>ADD H</p>
+      </td>
+      <td><p>ADD L</p>
+      </td>
+      <td><p>ADD M</p>
+      </td>
+      <td><p>ADD A</p>
+      </td>
+      <td><p>ADC B</p>
+      </td>
+      <td><p>ADC C</p>
+      </td>
+      <td><p>ADC D</p>
+      </td>
+      <td><p>ADC E</p>
+      </td>
+      <td><p>ADC H</p>
+      </td>
+      <td><p>ADC L</p>
+      </td>
+      <td><p>ADC M</p>
+      </td>
+      <td><p>ADC A</p>
+    </td></tr>
+    <tr>
+      <td><p>90h-9Fh</p>
+      </td>
+      <td><p>SUB B</p>
+      </td>
+      <td><p>SUB C</p>
+      </td>
+      <td><p>SUB D</p>
+      </td>
+      <td><p>SUB E</p>
+      </td>
+      <td><p>SUB H</p>
+      </td>
+      <td><p>SUB L</p>
+      </td>
+      <td><p>SUB M</p>
+      </td>
+      <td><p>SUB A</p>
+      </td>
+      <td><p>SBB B</p>
+      </td>
+      <td><p>SBB C</p>
+      </td>
+      <td><p>SBB D</p>
+      </td>
+      <td><p>SBB E</p>
+      </td>
+      <td><p>SBB H</p>
+      </td>
+      <td><p>SBB L</p>
+      </td>
+      <td><p>SBB M</p>
+      </td>
+      <td><p>SBB A</p>
+    </td></tr>
+    <tr>
+      <td><p>A0h-AFh</p>
+      </td>
+      <td><p>ANA B</p>
+      </td>
+      <td><p>ANA C</p>
+      </td>
+      <td><p>ANA D</p>
+      </td>
+      <td><p>ANA E</p>
+      </td>
+      <td><p>ANA H</p>
+      </td>
+      <td><p>ANA L</p>
+      </td>
+      <td><p>ANA M</p>
+      </td>
+      <td><p>ANA A</p>
+      </td>
+      <td><p>XRA B</p>
+      </td>
+      <td><p>XRA C</p>
+      </td>
+      <td><p>XRA D</p>
+      </td>
+      <td><p>XRA E</p>
+      </td>
+      <td><p>XRA H</p>
+      </td>
+      <td><p>XRA L</p>
+      </td>
+      <td><p>XRA M</p>
+      </td>
+      <td><p>XRA A</p>
+    </td></tr>
+    <tr>
+      <td><p>B0h-BFh</p>
+      </td>
+      <td><p>ORA B</p>
+      </td>
+      <td><p>ORA C</p>
+      </td>
+      <td><p>ORA D</p>
+      </td>
+      <td><p>ORA E</p>
+      </td>
+      <td><p>ORA H</p>
+      </td>
+      <td><p>ORA L</p>
+      </td>
+      <td><p>ORA M</p>
+      </td>
+      <td><p>ORA A</p>
+      </td>
+      <td><p>CMP B</p>
+      </td>
+      <td><p>CMP C</p>
+      </td>
+      <td><p>CMP D</p>
+      </td>
+      <td><p>CMP E</p>
+      </td>
+      <td><p>CMP H</p>
+      </td>
+      <td><p>CMP L</p>
+      </td>
+      <td><p>CMP M</p>
+      </td>
+      <td><p>CMP A</p>
+    </td></tr>
+    <tr>
+      <td><p>COh-CFh</p>
+      </td>
+      <td><p>RNZ</p>
+      </td>
+      <td><p>POP B</p>
+      </td>
+      <td><p>JNZ @</p>
+      </td>
+      <td><p>JMP @</p>
+      </td>
+      <td><p>CNZ @</p>
+      </td>
+      <td><p>PUSH B</p>
+      </td>
+      <td><p>ADI b</p>
+      </td>
+      <td><p>RST 0</p>
+      </td>
+      <td><p>RZ</p>
+      </td>
+      <td><p>RET</p>
+      </td>
+      <td><p>JZ @</p>
+      </td>
+      <td><p>RSTV</p>
+      </td>
+      <td><p>CZ @</p>
+      </td>
+      <td><p>CALL @</p>
+      </td>
+      <td><p>ACI b</p>
+      </td>
+      <td><p>RST 1</p>
+    </td></tr>
+    <tr>
+      <td><p>D0h-DFh</p>
+      </td>
+      <td><p>RNC</p>
+      </td>
+      <td><p>POP D</p>
+      </td>
+      <td><p>JNC @</p>
+      </td>
+      <td><p>OUT port</p>
+      </td>
+      <td><p>CNC @</p>
+      </td>
+      <td><p>PUSH D</p>
+      </td>
+      <td><p>SUI b</p>
+      </td>
+      <td><p>RST 2</p>
+      </td>
+      <td><p>RC</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>SHLX<br>SHLDE<br>SHLI</p>
+      </td>
+      <td><p>JC @</p>
+      </td>
+      <td><p>IN port</p>
+      </td>
+      <td><p>CC @</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>JNX5 @<br>JNK @<br>JTP @</p>
+      </td>
+      <td><p>SBI b</p>
+      </td>
+      <td><p>RST 3</p>
+    </td></tr>
+    <tr>
+      <td><p>E0h-EFh</p>
+      </td>
+      <td><p>RPO</p>
+      </td>
+      <td><p>POP H</p>
+      </td>
+      <td><p>JPO @</p>
+      </td>
+      <td><p>XTHL</p>
+      </td>
+      <td><p>CPO @</p>
+      </td>
+      <td><p>PUSH H</p>
+      </td>
+      <td><p>ANI b</p>
+      </td>
+      <td><p>RST 4</p>
+      </td>
+      <td><p>RPE</p>
+      </td>
+      <td><p>PCHL</p>
+      </td>
+      <td><p>JPE @</p>
+      </td>
+      <td><p>XCHG</p>
+      </td>
+      <td><p>CPE @</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>LHLI<br>LHLX<br>LHLDE</p>
+      </td>
+      <td><p>XRI b</p>
+      </td>
+      <td><p>RST 5</p>
+    </td></tr>
+    <tr>
+      <td><p>F0h-FFh</p>
+      </td>
+      <td><p>RP</p>
+      </td>
+      <td><p>POP PSW</p>
+      </td>
+      <td><p>JP @</p>
+      </td>
+      <td><p>DI</p>
+      </td>
+      <td><p>CP @</p>
+      </td>
+      <td><p>PUSH PSW</p>
+      </td>
+      <td><p>ORI b</p>
+      </td>
+      <td><p>RST 6</p>
+      </td>
+      <td><p>RM</p>
+      </td>
+      <td><p>SPHL</p>
+      </td>
+      <td><p>JM @</p>
+      </td>
+      <td><p>EI</p>
+      </td>
+      <td><p>CM @</p>
+      </td>
+      <td style="background:lightgreen; color:black"><p>JX5 @<br>JK @<br>JTM @</p>
+      </td>
+      <td><p>CPI b</p>
+      </td>
+      <td><p>RST 7</p>
+</td></tr></tbody></table>
+
+<p><b>@</b>: Address.</p>
+<p><b>b</b>: Byte.</p>
+<p><b>w</b>: 16-bit word.</p>
+
+
+<h1>Z80 Equivalent Mnemonics</h1>
+<table class="none" width="70%">
+  <thead><tr>
+      <th>8085</th>
+      <th>Z80</th>
+      <th>Remarks
+    </th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ACI data</td>
+      <td>ADC A,data</td>
+      <td rowspan=5>Z80 adds the N flag which records whether the last arithmetic 
+	operation was an add or subtract (and is used by the DAA instruction) ; 
+	Z80 uses P flag for overflow (V)
+    </td></tr>
+    <tr>
+      <td>ADC M</td>
+      <td>ADC A,(HL)</td>
+    </tr>
+    <tr>
+      <td>ADC reg</td>
+      <td>ADC A,reg</td>
+    </tr>
+    <tr>
+      <td>ADD M</td>
+      <td>ADD A,(HL)</td>
+    </tr>
+    <tr>
+      <td>ADD reg</td>
+      <td>ADD A,reg</td>
+    </tr>
+    <tr>
+      <td>ADI data</td>
+      <td>ADD A,data</td>
+    </tr>
+    <tr>
+      <td>ANA M</td>
+      <td>AND (HL)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>ANA reg</td>
+      <td>AND reg</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>ANI data</td>
+      <td>AND data</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">ARHL / RRHL / SHLR
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will decode this instruction as DJNZ @ (Decrement B and jump if not zero)!
+    </td></tr>
+    <tr>
+      <td>CALL label</td>
+      <td>CALL label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CC label</td>
+      <td>CALL C,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CM label</td>
+      <td>CALL M,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CMA</td>
+      <td>CPL</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CMC</td>
+      <td>CCF</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CMP M</td>
+      <td>CP (HL)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CMP reg</td>
+      <td>CP reg</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CNC label</td>
+      <td>CALL NC,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CNZ label</td>
+      <td>CALL NZ,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CP label</td>
+      <td>CALL P,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CPE label</td>
+      <td>CALL PE,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CPI data</td>
+      <td>CP data</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CPO label</td>
+      <td>CALL PO,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>CZ label</td>
+      <td>CALL Z,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>DAA</td>
+      <td>DAA</td>
+      <td>Z80 corrects both addition and subtraction while 8085 only corrects addition
+    </td></tr>
+    <tr>
+      <td>DAD rp</td>
+      <td>ADD HL,rp</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>DCR M</td>
+      <td>DEC (HL)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>DCR reg</td>
+      <td>DEC reg</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>DCX rp</td>
+      <td>DEC rp</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">DEHL data / LDHI data
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will decode this instruction as JR z,@ (Jump Relative if zero)!
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">DESP data / LDSI data
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will decode this instruction as JR c,@ (Jump Relative if carry)!
+    </td></tr>
+    <tr>
+      <td>DI</td>
+      <td>DI</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">DSUB / HLMBC
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will decode this instruction as EX AF,AF' (Exchange register AF with AF')!
+    </td></tr>
+    <tr>
+      <td>EI</td>
+      <td>EI</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>HLT</td>
+      <td>HALT</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>IN port</td>
+      <td>IN A,port</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>INR M</td>
+      <td>INC (HL)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>INR reg</td>
+      <td>INC reg</td>
+      <td>Z80 takes 4 cycles, 8085 takes 5 cycles
+    </td></tr>
+    <tr>
+      <td>INX rp</td>
+      <td>INC rp</td>
+      <td>Z80 takes 6 cycles, 8085 takes 5 cycles
+    </td></tr>
+    <tr>
+      <td>JC label</td>
+      <td>JP C,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>JM label</td>
+      <td>JP M,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>JMP label</td>
+      <td>JP label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>JNC label</td>
+      <td>JP NC,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">JNX5 @ / JNK @ / JTP @
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will NOT decode this instruction (0xDD isn't a valid opcode)!
+    </td></tr>
+    <tr>
+      <td>JNZ label</td>
+      <td>JP NZ,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>JP label</td>
+      <td>JP P,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>JPE label</td>
+      <td>JP PE,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>JPO label</td>
+      <td>JP PO,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">JX5 @ / JK @ / JTM @
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will try to decode this instruction (Result depends on next byte(s) since 0xFD is the start of an extended opcode)!
+    </td></tr>
+    <tr>
+      <td>JZ label</td>
+      <td>JP Z,label</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>LDA addr</td>
+      <td>LD A,(addr)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>LDAX B</td>
+      <td>LD A,(BC)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>LDAX D</td>
+      <td>LD A,(DE)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>LHLD addr</td>
+      <td>LD HL,(addr)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">LHLI / LHLX / LHLDE
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will try to decode this instruction (Result depends on next byte(s) since 0xED is the start of an extended opcode)!
+    </td></tr>
+    <tr>
+      <td>LXI rp,data16</td>
+      <td>LD rp,data16</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>MOV M,reg</td>
+      <td>LD (HL),reg</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>MOV reg,M</td>
+      <td>LD reg,(HL)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>MOV reg,reg</td>
+      <td>LD reg,reg</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>MVI M,data</td>
+      <td>LD (HL),data</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>MVI reg,data</td>
+      <td>LD reg,data</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>NOP</td>
+      <td>NOP</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>ORA M</td>
+      <td>OR (HL)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>ORA reg</td>
+      <td>OR reg</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>ORI data</td>
+      <td>OR data</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>OUT port</td>
+      <td>OUT port,A</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>PCHL</td>
+      <td>JP (HL)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>POP rp</td>
+      <td>POP rp</td>
+      <td>When POP AF, Z80 preserves all bits while 8085 sets unused flag bits to 1
+    </td></tr>
+    <tr>
+      <td>PUSH rp</td>
+      <td>PUSH rp</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RAL</td>
+      <td>RLA</td>
+      <td>Z80 Clears the half-carry flag while the 8085 leaves it unchanged
+    </td></tr>
+    <tr>
+      <td>RAR</td>
+      <td>RRA</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RC</td>
+      <td>RET C</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">RDEL / RLDE
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will decode this instruction as JR @ (Jump Relative)!
+    </td></tr>
+    <tr>
+      <td>RET</td>
+      <td>RET</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RIM
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will decode this instruction as JR nz,@ (Jump Relative if not zero)!
+    </td></tr>
+    <tr>
+      <td>RLC</td>
+      <td>RLCA</td>
+      <td>Z80 Clears the half-carry flag while the 8085 leaves it unchanged
+    </td></tr>
+    <tr>
+      <td>RM</td>
+      <td>RET M</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RNC</td>
+      <td>RET NC</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RNZ</td>
+      <td>RET NZ</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RP</td>
+      <td>RET P</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RPE</td>
+      <td>RET PE</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RPO</td>
+      <td>RET PO</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RRC</td>
+      <td>RRCA</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RST n</td>
+      <td>RST n</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>RZ</td>
+      <td>RET Z</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>SBB M</td>
+      <td>SBC A,(HL)</td>
+      <td rowspan=3>Z80 adds the N flag which records whether the last arithmetic 
+	operation was an add or subtract (and is use by the DAA instruction) ; 
+	Z80 uses P flag for overflow
+    </td></tr>
+    <tr>
+      <td>SBB reg</td>
+      <td>SBC A,reg</td>
+    </tr>
+    <tr>
+      <td>SBI data</td>
+      <td>SBC A,data</td>
+    </tr>
+    <tr>
+      <td>SHLD addr</td>
+      <td>LD (addr),HL</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td style="background:lightgreen; color:black">SHLX / SHLDE / SHLI
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will decode this instruction as EXX (Exchange registers with alternate registers)!
+    </td></tr>
+    <tr>
+      <td>SIM
+      </td>
+      <td style="background:#ffcccb; color:black; text-align:center">N/A
+      </td>
+      <td style="background:#ffcccb; color:black; font-weight:bold">Z80 will decode this instruction as JR nc,@ (Jump Relative if not carry)!
+    </td></tr>
+    <tr>
+      <td>SPHL</td>
+      <td>LD SP,HL</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>STA addr</td>
+      <td>LD (addr),A</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>STAX B</td>
+      <td>LD (BC),A</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>STAX D</td>
+      <td>LD (DE),A</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>STC</td>
+      <td>SCF</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>SUB M</td>
+      <td>SUB (HL)</td>
+      <td rowspan=3>Z80 adds the N flag which records whether the last arithmetic 
+	operation was an add or subtract (and is use by the DAA instruction) ; 
+	Z80 uses P flag for overflow
+    </td></tr>
+    <tr>
+      <td>SUB reg</td>
+      <td>SUB reg</td></tr>
+    <tr>
+      <td>SUI data</td>
+      <td>SUB data</td></tr>
+    <tr>
+      <td>XCHG</td>
+      <td>EX DE,HL</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>XRA M</td>
+      <td>XOR (HL)</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>XRA reg</td>
+      <td>XOR reg</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>XRI data</td>
+      <td>XOR data</td>
+      <td>
+    </td></tr>
+    <tr>
+      <td>XTHL</td>
+      <td>EX (SP),HL</td>
+      <td>
+</td></tr>
+</tbody>
+</table>
+
+
+<h3>Sources for this table:</h3>
+<ul><li><a href="http://www.verycomputer.com/74_195480c497e2c77c_1.htm#p6">8080 -&gt; Z80 mnemonic correspondence</a></li>
+  <li><a href="https://retrocomputing.stackexchange.com/questions/1610/how-did-the-z80-instruction-set-differ-from-the-8080/1612#1612">How did the Z80 instruction set differ from the 8080?</a></li>
+  <li><a href="http://www.msxarchive.nl/pub/msx/mirrors/hanso/datasheets/chipsz80leventhal3.pdf">Z80 Assembly Language Programming (Chapter 3 - 8080A/Z80 compatibility)</a></li>
+  <li><a href="https://www.asm80.com/tools/index.html#/i2z">Tool for automatic conversion of 8080A assembly to Z80 assembly</a></li>
+</ul>
+
+
