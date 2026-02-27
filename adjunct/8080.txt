@@ -28,7 +28,7 @@ STAX  BD          Stores A register at location in BC or DE.
 LHLD  Addr        Loads HL register with 16 bits found at Addr and Addr+1.
 SHLD  Addr        Stores HL register contents at Addr and Addr+1.
 LXI   RP,data     Loads 16 bits into B,D,H, or SP.
-PUSH  BP          Puts 16 bits of BP onto stack. SP=SP-2.
+PUSH  BP          Puts 16 bits of BP onto stack after SP=SP-2.
 POP   BP          Takes top of stack, puts it in BP. SP=SP+2.
 XTHL              Exchanges HL with top of stack.
 SPHL              Puts contents of HL into SP (stack pointer).
