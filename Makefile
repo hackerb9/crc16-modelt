@@ -33,7 +33,7 @@ CRC16.CO: CRCBIT.CO
 
 # These are the executables for the Kyotronic Sisters (Model T computers)
 CRCBYTE.CO: modelt-bytewise.asm modelt-driver.asm crc16-bytewise.asm crctable.asm
-	asmx -e -w -b$(ORG) modelt-bytewise.asm && mv modelt-bytewise.asm.bin CRCBYTE.CO
+	asmx -e -w -b59000 modelt-bytewise.asm && mv modelt-bytewise.asm.bin CRCBYTE.CO
 
 CRCBIT.CO: modelt-bitwise.asm modelt-driver.asm crc16-bitwise.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-bitwise.asm && mv modelt-bitwise.asm.bin CRCBIT.CO
