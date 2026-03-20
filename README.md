@@ -24,8 +24,16 @@ shown next and the ROM variant will be looked up in the table below.
 If your variant is not recognized, you'll be encouraged to create a
 new bug report so your ROM can be added to the list.
 
-Note: 8K machines may have to use `run "COM:88N1"` and send the file
-over the serial port.
+<!-- Note: 8K machines may have to use `run "COM:88N1"` and send the file
+over the serial port. -->
+
+### 8K workaround
+
+> **NOTE** The CRC16.DO BASIC loader currently does not work on 8K
+> machines. This bug is due to co2do's large boilerplate code.
+> CRC16.CO will still work if you can transfer CRC16.CO to your
+> machine. Use `CLEAR 10,59595: RUNM "CRC16"`.
+
 
 ## Related
 
@@ -73,9 +81,9 @@ The only difference is in the file size and speed of execution.
 
 | Source                           | .CO executable           | Compiled Size | Features   |
 |----------------------------------|--------------------------|--------------:|------------|
-| [modelt-bytewise.asm][tbytewise] | [CRCBYTE.CO](CRCBYTE.CO) |    1881 bytes | Fastest    |
-| [modelt-bitwise.asm][tbitwise]   | [CRCBIT.CO](CRCBIT.CO)   |    1443 bytes | Reasonable |
-| [modelt-pushpop.asm][tpushpop]   | [CRCPSH.CO](CRCPSH.CO)   |    1367 bytes | Smallest   |
+| [modelt-bytewise.asm][tbytewise] | [CRCBYTE.CO](CRCBYTE.CO) |    1930 bytes | Fastest    |
+| [modelt-bitwise.asm][tbitwise]   | [CRCBIT.CO](CRCBIT.CO)   |    1492 bytes | Reasonable |
+| [modelt-pushpop.asm][tpushpop]   | [CRCPSH.CO](CRCPSH.CO)   |    1416 bytes | Smallest   |
 
 (The file [CRC16.CO](CRC16.CO) is merely a symlink to CRCBIT.CO.)
 
