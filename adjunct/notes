@@ -25,10 +25,10 @@ Hackerb9 defines "MINRAM":
 	memory have a larger MINRAM.
 
 LARGEST MINRAM
-8K Model 100: MINRAM is 57777,
+8K Kyotronic-85: MINRAM is 58633,
 	      when string space=0, MAXFILES=0, and there are no files.
 		MAXFILES=0
-		CLEAR 0, 57777
+		CLEAR 0, 58633
 
 SMALLEST MAXRAM
 Tandy 200:    MAXRAM is 61104
@@ -36,12 +36,12 @@ Tandy 200:    MAXRAM is 61104
 
 Thus... the largest cross-platform machine language file would be:
 
-	(61104-57777)/2 = 1663.5 bytes
+	(61104-57777)/2 = 1235.5 bytes
 
 	[Give or take. the LOADM copy uses six less bytes and filesystem adds
 	 a few more bytes in the header of the file.]
 
-So, the ideal address for ORG (HIMEM) is approximately 59441 (E831).
+So, the ideal address for ORG (HIMEM) is approximately 59869 (E9DD).
 
 
 ======================================================================
@@ -78,10 +78,11 @@ Possible solutions:
 	3. Use the Quick ID PEEKs to print out the make and model and
            use the CRC to print the specific variation.
 
+	 [x]    DONE!
 	  a. Easiest is to allow free form variant text as that's
              already working.
-    [x]    DONE!
 
+	 [x]    DONE!
     	  b. Allow characters > 127 to be defined as keywords to
     	     replace. This would be done in mkcrctable.awk. 
 
