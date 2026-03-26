@@ -1,4 +1,4 @@
-;;; modelt-generic.asm
+;;; GENCRC.ASM
 
 ;;; This routine can be called from BASIC to get a checksum for any
 ;;; buffer region. 
@@ -14,8 +14,8 @@
 ;;; Note that a large file can be processed in blocks by simply
 ;;; leaving the result in i%[2] instead of resetting it to zero.
 ;;;
-;;; See also: crcbas.do for a version of this which uses VARPTR to run
-;;; out of a string instead of loading to a fixed address.
+;;; See also: crcbas.do for a version of this which uses VARPTR to 
+;;; execute out of a string instead of loading to a fixed address.
 
 	.8085			; Hint to asmx
 
