@@ -25,9 +25,9 @@ HDR:	MACRO 	P1
 BEGINP:	
 
 	;; Jump table for passing values to this routine
-	JP	MAIN
-	JP	SETADDR
-	JP	SETLEN
+	JMP	MAIN
+	JMP	SETADDR
+	JMP	SETLEN
 
 RESULT	DW	0000h		; place to store return result.
 SVDE	DW	0000h		; stash DE since CALL only sets HL.
