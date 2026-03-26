@@ -1,4 +1,6 @@
-all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO CRC16.CO CRC16.DO crc16 table.md sanity
+all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO CRC16.CO CRC16.DO
+all:	GENCRC.CO
+all: 	crc16 table.md sanity
 
 # ORG is the address where the programs are assembled to load.
 # * Can't be too low or 8K machines can't load the file. (About 59500 minimum).
@@ -40,6 +42,10 @@ CRCBIT.CO: modelt-bitwise.asm modelt-driver.asm crc16-bitwise.asm crctable.asm
 
 CRCPSH.CO: modelt-pushpop.asm modelt-driver.asm crc16-pushpop.asm crctable.asm
 	asmx -e -w -b$(ORG) modelt-pushpop.asm && mv modelt-pushpop.asm.bin CRCPSH.CO
+
+# Generic routine to be CALLed from BASIC to set buffer address and length.
+GENCRC.CO: GENCRC.ASM
+	asmx -e -w -b60000 GENCRC.ASM && mv GENCRC.ASM.bin GENCRC.CO
 
 crctable.asm: mkcrctable.awk crc16 ROMs/* ROMs/ adjunct/extrasums.txt
 	./mkcrctable.awk > crctable.asm
