@@ -1,7 +1,7 @@
 ;;; modelt-generic.asm
 
-;;; A routine which can be called from BASIC to get a checksum for any
-;;; buffer region.
+;;; This routine can be called from BASIC to get a checksum for any
+;;; buffer region. 
 
 ;;; Usage:
 ;;; 	CLEAR 256,60000: LOADM"GENCRC.CO"
@@ -10,6 +10,12 @@
 ;;; 	i%[2] = 0 (initial checksum / result) 
 ;;; 	call 60000, 0, varptr(i%[0])
 ;;; 	?i%[2]
+;;;
+;;; Note that a large file can be processed in blocks by simply
+;;; leaving the result in i%[2] instead of resetting it to zero.
+;;;
+;;; See also: crcbas.do for a version of this which uses VARPTR to run
+;;; out of a string instead of loading to a fixed address.
 
 	.8085			; Hint to asmx
 
