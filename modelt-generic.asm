@@ -2,11 +2,14 @@
 
 ;;; A routine which can be called from BASIC to get a checksum for any
 ;;; buffer region.
+
 ;;; Usage:
-;;; 	CALL 60003, 0, buffer-address
-;;; 	CALL 60006, 0, buffer-length
-;;; 	CALL 60000
-;;; 	?PEEK(60009)+256*PEEK(60010)
+;;; 	CLEAR 256,60000: LOADM"GENCRC.CO"
+;;; 	i%[0] = buffer start address
+;;; 	i%[1] = buffer length
+;;; 	i%[2] = 0 (initial checksum / result) 
+;;; 	call 60000, 0, varptr(i%[0])
+;;; 	?i%[2]
 
 	.8085			; Hint to asmx
 
@@ -16,38 +19,30 @@
 ;; * ENTRY - Where the program will be entered (entry point).
 ;; Executable data - 8085 machine code ORG'ed at START.
 HDR:	MACRO 	P1
-	DW 	P1, ENDP-BEGINP, P1
+	DW 	P1, ENDP-BEGINP, 0 	; 0 = not directly executable
 	RORG	P1
 	ENDM
 
-	ORG	60000			; Use CLEAR 255,60000
+	ORG	60000
 	HDR	60000
 BEGINP:	
 
-	;; Jump table for passing values to this routine
-	JMP	MAIN
-	JMP	SETADDR
-	JMP	SETLEN
-
-RESULT	DW	0000h		; place to store return result.
-SVDE	DW	0000h		; stash DE since CALL only sets HL.
-SVBC	DW	00FFh		; likewise for BC.
-
-SETADDR:
-	SHLD	(SVDE)
-	RET
-
-SETLEN:
-	SHLD	(SVBC)
-	RET
-
 MAIN:	
-	XCHG			; Stash HL ( = initial checksum)
-	LHLD	(SVBC)		; BC = length of buffer to checksum
-	MOV	B, H
-	MOV	C, L
-	LHLD	(SVDE)
-	XCHG			; DE = address of buffer to checksum
+	; HL is pointer to array of three ints
+	;; address, length, initial/result
+	MOV	E, M		; DE = address of buffer to checksum
+	INX	H
+	MOV	D, M
+	INX	H
+	MOV	C, M		; BC = length of buffer 
+	INX	H
+	MOV	B, M
+	INX	H
+	PUSH 	H
+	MOV	A, M
+	INX	H
+	MOV	H, M
+	MOV	L, A
 
 ;;; What follows is mostly a cut and paste from crc16-pushpop.asm
 CRC16_MAINLOOP:
@@ -81,7 +76,11 @@ DONE8BITS:
 	JNZ	CRC16_MAINLOOP	; Keep going until BC is 0
 
 	;; End of CRC-16 routine. Result is in HL.
-	SHLD	(RESULT)
+	XCHG
+	POP	H
+	MOV 	M, E
+	INX	H
+	MOV 	M, D
 	RET
 
 ENDP
