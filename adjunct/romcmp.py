@@ -15,25 +15,45 @@
 # identify every Kyotronic Sister. The answer is no.
 # Two PEEKs are needed. b9 suggests PEEK(1) and PEEK(21358). 
 
+# Note that the three known NEC ROMs (8201, 8201A, and 8300) are
+# tricky to distinguish. PEEK(1) doesn't distinguish them at all. At
+# best, any single PEEK can distinguish two of the three. PEEK(21358)
+# conflates 8201 and 8201A although they have different character sets
+# and keyboards.  
+
+
 from glob import glob as glob
+import sys
 
 rom = {}
 
-files = sorted(glob("ROMs/*orig.bin"))
+if len(sys.argv) == 1:
+    files = glob("ROMs/*orig.bin")
+else:
+    files = sys.argv[1:]
+files = sorted(files)
+
 for f in files:
     name=f[:f.find(".bin")]
     rom[name] = open(f, "rb").read(32768)
     if len(rom[name])<32768: del rom[name]
 
+seen = {}
 for i in range(0, 32768):
-    seen = set()
+    seen[i] = set()
     for name in rom:
-        seen.add(rom[name][i])
-    if len(seen) >= 9: # and rom['pc8201'][i] != rom['pc8300'][i]:
+        seen[i].add(rom[name][i])
+       
+best = max([ len(seen[s]) for s in seen ])
+print( f'At best can distinguish {best} of the {len(files)} ROMs' )
+if best <= 1: raise ValueError
+
+for i in range(32768):
+    if len(seen[i]) >= best: # and rom['pc8201'][i] != rom['pc8300'][i]:
         print (f"Address: {i}\t ({i:x})")
         for name in rom:
             print(f'\t{rom[name][i]:3d}\t{name}')
-        
+
 # PEEK(1) distinguishes all but PC8201 and PC8300
 # PEEK(21358) distinguishes all but M100 and M102
 
