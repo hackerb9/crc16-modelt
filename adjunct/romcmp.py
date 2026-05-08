@@ -42,17 +42,19 @@ seen = {}
 for i in range(0, 32768):
     seen[i] = set()
     for name in rom:
-        seen[i].add(rom[name][i])
+        # Count unique values for PEEK(i) for each ROM. 
+        # Note: Presumes we're also using PEEK(1) to disambiguate.
+        seen[i].add( rom[name][i] + 256*rom[name][1] )
        
 best = max([ len(seen[s]) for s in seen ])
 print( f'At best can distinguish {best} of the {len(files)} ROMs' )
 if best <= 1: raise ValueError
 
 for i in range(32768):
-    if len(seen[i]) >= best: # and rom['pc8201'][i] != rom['pc8300'][i]:
-        print (f"Address: {i}\t ({i:x})")
+    if len(seen[i]) == best: # and rom['pc8201'][i] != rom['pc8300'][i]:
+        print (f"PEEK(1) ({i:5d})\t[ == {i:04X}h ]")
         for name in rom:
-            print(f'\t{rom[name][i]:3d}\t{name}')
+            print(f'    {rom[name][1]:3d}    {rom[name][i]:3d}\t{name}')
 
 # PEEK(1) distinguishes all but PC8201 and PC8300
 # PEEK(21358) distinguishes all but M100 and M102
