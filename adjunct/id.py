@@ -1,12 +1,16 @@
 #!/usr/bin/python
 from glob import glob as glob
+import sys
 
 # February 2026
 # Hackerb9 believes PEEK(1) and PEEK(21358) are best for uniquely
 # identifying the different ROMs of the Kyotronic Sisters.
 
 # This program simply reads byte 1 and 21358 of each ROM file and prints them.
-romfiles = glob("ROMs/*.bin")
+if len(sys.argv) == 1:
+    romfiles = glob("ROMs/*.bin")
+else:
+    romfiles = sys.argv[1:]
 
 results=[]
 for f in romfiles:
