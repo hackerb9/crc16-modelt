@@ -12,18 +12,40 @@
 #          t200 171
 #
 # b9 wonders if there is any single byte address that would uniquely
-# identify every Kyotronic Sister. The answer is no.
-# Two PEEKs are needed. b9 suggests PEEK(1) and PEEK(21358). 
+# identify every Kyotronic Sister. The answer is No, and especially NO
+# if international ROMs need to be distinguished from US.
 
-# Note that the three known NEC ROMs (8201, 8201A, and 8300) are
-# tricky to distinguish. PEEK(1) doesn't distinguish them at all. At
-# best, any single PEEK can distinguish two of the three. PEEK(21358)
-# conflates 8201 and 8201A although they have different character sets
-# and keyboards.  
+# 1. PEEK(1) may not be complete, but it is still useful and I
+#    (hackerb9) recommend it for general use. 
 
+# 2. A second PEEK can distinguish the Tandy 102 US from UK and NO.
+#    Only a handful of addresses work: 21333, 21356, 21357, & 21358.
+#    I use PEEK(21358). It also separates 8201 from 8300.
+#    PEEK(1) (21358) [ == 536Eh ]
+#        167     96  Tandy_102_uk+orig
+#        167     83  Tandy_102_us+orig
+#        167    123  Televerket_Modell_100+orig
+#        148    101  NEC_PC-8201+A_orig
+#        148    101  NEC_PC-8201+Japan_orig
+#        148    235  NEC_PC-8300+orig
+     
+# 3. A third PEEK can distinguish between the NEC PC-8201 and PC-8201A.
+#    Many addresses would work. 31456 is an easy one to remember.
+#    PEEK(1) (21358) (31456)                
+#       148     101     124          PC-8201 
+#       148     101      32          PC-8201A
+#       148     235      32          PC-8300 
+
+# Note that, as of May 2026,  PEEK(1) is redundant if one is using the latter two peeks
+# in
 
 from glob import glob as glob
 import sys
+
+# Addresses which are already being used to disambiguate. Can be empty.
+# already_given = [ 1 ]
+#already_given = [ 21358 ]
+already_given = [ 21333 ]
 
 rom = {}
 
@@ -43,31 +65,28 @@ for i in range(0, 32768):
     seen[i] = set()
     for name in rom:
         # Count unique values for PEEK(i) for each ROM. 
-        # Note: Presumes we're also using PEEK(1) to disambiguate.
-        seen[i].add( rom[name][i] + 256*rom[name][1] )
+        value = rom[name][i]
+        for x in already_given: 	# Presume PEEK(x) is also being used
+            value = value<<8 + rom[name][x]
+        seen[i].add( value )
        
 best = max([ len(seen[s]) for s in seen ])
-print( f'At best can distinguish {best} of the {len(files)} ROMs' )
+print( f'At best can distinguish {best} of the {len(rom)} ROMs' )
 if best <= 1: raise ValueError
-
+ 
 for i in range(32768):
-    if len(seen[i]) == best: # and rom['pc8201'][i] != rom['pc8300'][i]:
-        print (f"PEEK(1) ({i:5d})\t[ == {i:04X}h ]")
+    if len(seen[i]) >= best:
+
+#        if rom['NEC_PC-8201+A_orig'][i] == rom['NEC_PC-8201+Japan_orig'][i]: continue
+#        if rom['Tandy_102_uk+orig'][i] == rom['Tandy_102_us+orig'][i]: continue
+
+        print  ("PEEK", end="")
+        for x in already_given:
+            print (f"{'('+str(x)+')':<8s}", end="")
+        print (f"{'('+str(i)+')':<8s}", end="")
+        print (f"\t[ {i} == {i:04X}h ]")
         for name in rom:
-            print(f'    {rom[name][1]:3d}    {rom[name][i]:3d}\t{name}')
-
-# PEEK(1) distinguishes all but PC8201 and PC8300
-# PEEK(21358) distinguishes all but M100 and M102
-
-# Address: 21358   (536e)
-#            194   KC-85.orig
-#             35   M10_System_ROM_EU.orig
-#            205   M10_System_ROM_NorthAmerica.orig
-#            101   NEC_PC-8201A.orig
-#            235   NEC_PC-8300.orig
-#             96   TANDY_Model_102.uk.orig
-#             83   TANDY_Model_102.us.orig
-#              9   TANDY_Model_200.M15.orig
-#             83   TRS-80_Model_100.orig
-#            123   Televerket-Modell100.orig
+            for x in already_given:
+                print (f"{rom[name][x]:8d}", end="")
+            print(f'{rom[name][i]:8d}\t{name}')
 
