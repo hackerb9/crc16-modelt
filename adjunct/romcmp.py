@@ -11,12 +11,15 @@
 # has collected. PEEK(21333) and PEEK(31444) work. See notes below.
 
 from glob import glob as glob
+from collections import defaultdict
 import sys
 
 # Addresses which are already being used to disambiguate. Can be empty.
-#already_given = [1]
+already_given = [6451]
 #already_given = [ 21358, 31439 ]
-already_given = [ 31444 ]
+#already_given = [ 21333, 31444, 6451 ]
+#already_given = [ 1, 31444 ]
+#already_given = [ 31444, 6451 ]
 
 rom = {}
 
@@ -28,14 +31,48 @@ else:
 if len(files) == 0: raise ValueError("Could not open ROMs")
 files = sorted(files)
 
+model=defaultdict(dict)         # "Model" is part before '+' ("Tandy_102_uk")
+				# "Variant" is part after '+' ("y2k")
+removed=defaultdict(dict)
 for f in files:
-    name=f[:f.find(".bin")]
+    name=f.rstrip(".bin")
+
+    if name.find('+') != -1:
+        (m, v) = name.split('+')
+    else:
+        m = name
+        v = ""
+    model[m][v]=name
+        
     rom[name] = open(f, "rb").read(32768)
     if len(rom[name])<32768: del rom[name]
+
+
+# Ignore addresses where variants differ.
+blocklist = []                  
+for m in model:
+    if len(model[m]) == 1:
+        continue
+    print(f"Merging variants of {m}: {list(model[m].keys())}")
+    for i in range(0, 32768):
+        seen = set()
+        for v,name in model[m].items():
+            seen.add( rom[name][i] )
+            if len(seen) > 1:
+                blocklist.append(i)
+    # Keep only one of the ROM variants.
+    x = list(model[m].keys())[0]
+    rom[m] = rom[model[m][x]]
+    for v in model[m]:
+        removed[model[m][v]] = rom[model[m][v]]
+        del rom[model[m][v]]
+
+# Main routine
 
 seen = {}
 for i in range(0, 32768):
     seen[i] = set()
+    if i in blocklist: continue
     for name in rom:
         # Count unique values for PEEK(i) for each ROM. 
         value = rom[name][i]
@@ -44,7 +81,11 @@ for i in range(0, 32768):
         seen[i].add( value )
        
 best = max([ len(seen[s]) for s in seen ])
-print( f'At best can distinguish {best} of the {len(rom)} ROMs' )
+if best < len(rom):
+    print( f'At best can distinguish {best} of the {len(rom)} ROMs' )
+else:
+    print( f'Can distinguish all of the {len(rom)} ROMs' )
+
 if best <= 1: raise ValueError
  
 for i in range(32768):
@@ -52,16 +93,23 @@ for i in range(32768):
 #        if rom['NEC_PC-8201+A_orig'][i] == rom['NEC_PC-8201+Japan_orig'][i]: continue
 #        if rom['Tandy_102_uk+orig'][i] == rom['Tandy_102_us+orig'][i]: continue
 
-        print  ("PEEK", end="")
-        for x in already_given:
-            print (f"{'('+str(x)+')':<8s}", end="")
-        print (f"{'('+str(i)+')':<8s}")
+        print("PEEK ", end='')
+        print( ''.join( [ f"{'('+str(x)+')':>8s}"
+                          for x in already_given +[i] ]))
+        output = []
         for name in rom:
-            for x in already_given:
-                print (f"{rom[name][x]:8d}", end="")
-            print(f'{rom[name][i]:8d}\t{name}')
-
-
+            line = [ rom[name][j] for j in already_given+[i] ]
+            output.append( [line , f'\t{name}' ])
+        for name in removed:
+            line = [ removed[name][j] for j in already_given+[i] ]
+            output.append( [line , f'\t\t({name})' ])
+        output=sorted(output)
+        for line in output:
+            print( '   ',
+                   ''.join( [ f'{id:8d}' for id in line[0] ] ),
+                   line[1] )
+            
+            
 
 # 1. PEEK(1) is still quite useful for the most common Model-T
 #    computers and is still recommended.
