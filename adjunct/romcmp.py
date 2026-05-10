@@ -14,7 +14,8 @@ from glob import glob as glob
 import sys
 
 # Addresses which are already being used to disambiguate. Can be empty.
-#already_given = []
+#already_given = [1]
+#already_given = [ 21358, 31439 ]
 already_given = [ 31444 ]
 
 rom = {}
@@ -23,6 +24,8 @@ if len(sys.argv) == 1:
     files = glob("ROMs/*orig.bin")
 else:
     files = sys.argv[1:]
+
+if len(files) == 0: raise ValueError("Could not open ROMs")
 files = sorted(files)
 
 for f in files:
@@ -52,8 +55,7 @@ for i in range(32768):
         print  ("PEEK", end="")
         for x in already_given:
             print (f"{'('+str(x)+')':<8s}", end="")
-        print (f"{'('+str(i)+')':<8s}", end="")
-        print (f"\t[ {i} == {i:04X}h ]")
+        print (f"{'('+str(i)+')':<8s}")
         for name in rom:
             for x in already_given:
                 print (f"{rom[name][x]:8d}", end="")
