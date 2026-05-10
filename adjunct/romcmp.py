@@ -102,7 +102,7 @@ for i in range(32768):
             output.append( [line , f'\t{name}' ])
         for name in removed:
             line = [ removed[name][j] for j in already_given+[i] ]
-            output.append( [line , f'\t\t({name})' ])
+            output.append( [line , f'\t\u2003\t({name})' ])
         output=sorted(output)
         for line in output:
             print( '   ',
