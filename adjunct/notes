@@ -137,3 +137,13 @@ nomenclature?
 
 ----------------------------------------------------------------------
 
+To do: Rename
+	   NEC_PC_8201+A_orig.bin
+	to NEC_PC_8201_A+orig.bin
+
+      The format is supposed to be MODEL PLUS VARIANT, but our Quick
+      ID code currently cannot tell the difference between a PC-8201
+      and PC-8201A, so we pretend they are just variants of the same
+      model. That way our CRC code can fills in the difference.
+
+
