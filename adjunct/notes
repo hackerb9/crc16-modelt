@@ -108,3 +108,32 @@ Possible solutions:
                be useful if we wish to show the Virtual T version number.
                (Each version has a different CRC).
 
+
+----------------------------------------------------------------------
+
+For Quick ID via PEEK, I wrote a little program to just check how many
+bytes (at the same memory location) differ between ROMs.
+
+    $ differ.py TRS-80_Model_100+orig.bin  TRS-80_Model_100+y2k.bin 
+    Same: 32766 bytes
+    Diff: 2 bytes
+    23123
+    23126
+
+Some of the ROMs Stephen Adolph uploaded to bitchin100 Wiki have a
+very strange number of differences, more similar to what I'd expect to
+be different models.
+
+TRS-80 Model 100 UK (26-3802B)
+	vs Tandy 102 UK: 1231 bytes differ
+	vs Tandy 102 US:  158 bytes differ
+
+TRS-80 Model 100 UK (SKL)
+	vs TRS-80 Model 100 UK (26-3802B): 1506 bytes differ
+	vs Kyocera Kyotronic-85: 157 bytes differ
+
+Perhaps the family tree needs to be shaken up based on DNA rather than
+nomenclature?
+
+----------------------------------------------------------------------
+
