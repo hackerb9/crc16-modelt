@@ -86,10 +86,10 @@ RET               Unconditional return from subroutine.
 
 Rotations
 
-RAL               Rotate Accumulator Left:  Bit0=C  C=Bit7.
-RAR               Rotate Accumulator Right:  Bit7=C  C=Bit0.
-RLC               Rotate Accumulator Left thru Carry:  Bit0=Bit7  C=Bit7.
-RRC               Rotate Accumulator Right thru Carry:  Bit7=Bit0  C=Bit0.
+RAL               Rotate Accumulator Left:  Bit0=C   C=Bit7.
+RAR               Rotate Accumulator Right: Bit7=C   C=Bit0.b
+RLC               Rotate Left Circular:    Bit0=Bit7 C=Bit7.
+RRC               Rotate Right Circular:   Bit7=Bit0 C=Bit0.
 
 Other Instructions
 
