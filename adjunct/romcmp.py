@@ -2,46 +2,14 @@
 
 # It is well known that PEEK(1) can distinguish between the Model T's.
 # However, it cannot tell nationalized models apart. (Tandy 102
-# US/UK/NO; NEC PC-8201/PC-8201A/PC-8300).
+# US vs M100 UK/NO; NEC PC-8201 vs PC-8201A/PC-8300).
 #
 # Is there any single byte address that would uniquely identify every.
 # Kyotronic Sister? This program shows the answer is "No".
 
 # At least two, maybe three peeks are needed to fully distinguish the
 # set of ROMs hackerb9 has collected (so far).
-# PEEK(21333) and PEEK(31444) are memorable and mostly work.
-
-# Grouping ROMs by date order (MMDDYY, DDMMYY, YYMMDD), 
-# a single PEEK would suffice. For example:
-
-  # | PEEK(6468)  | Mnemonic | Format |
-  # |-------------|----------|--------|
-  # | 5           | < 64     | YYMMDD |
-  # | 25, 74, 110 | All else | DDMMYY |
-  # | 154, 200    | > 128    | MMDDYY |
-
-    # PEEK   (6468)
-    #            5    YYMMDD+8201
-    #            5    YYMMDD+8201A
-    #            5    YYMMDD+8201A_y2k
-    #            5    YYMMDD+8300
-    #            5    YYMMDD+8300_y2k
-    #           25    DDMMYY+m100_no
-    #           25    DDMMYY+m100_uk
-    #           25    DDMMYY+m100_uk_y2k
-    #           25    DDMMYY+t102_uk
-    #           25    DDMMYY+t102_uk_y2k
-    #           74    DDMMYY+librom
-    #          110    DDMMYY+k85
-    #          110    DDMMYY+k85_y2k
-    #          110    DDMMYY+m10eu
-    #          110    DDMMYY+m10eu_y2k
-    #          154    MMDDYY+m100
-    #          154    MMDDYY+m100_y2k
-    #          154    MMDDYY+t102
-    #          154    MMDDYY+t102_y2k
-    #          200    MMDDYY+t200
-    #          200    MMDDYY+t200_y2k
+# Recommended: PEEK(21358), PEEK(6468), PEEK(31444)
 
 from glob import glob as glob
 from collections import defaultdict
@@ -49,12 +17,10 @@ import os, sys
 
 
 # Addresses which are already being used to disambiguate. Can be empty.
-already_given = [6451]
-#already_given = [ 21358, 31439 ]
-#already_given = [ 21333, 31444, 6451 ]
+# Set this array to try out the effect of having multiple PEEKs.
 #already_given = [ 1, 31444 ]
-already_given = [ 31444, 6451 ]
-already_given = [  ]
+already_given = [ 21358, 31444 ]
+already_given = [ 6468 ]
 
 rom = {}
 
@@ -69,7 +35,6 @@ files = sorted(files)
 model=defaultdict(dict)         # "Model" is part before '+' ("Tandy_102_uk")
 				# "Variant" is part after '+' ("y2k")
 namemv=defaultdict(dict)
-
 removed=defaultdict(dict)
 for f in files:
     if os.path.isdir(f):
@@ -97,15 +62,15 @@ for m in model:
     print(f"Merging variants of model {m}: {list(model[m].keys())}")
     modelrom[m] = defaultdict(dict)
     for i in range(0, 32768):
-        for v,name in model[m].items():
-#            for value in modelrom[m][i]:# Presume PEEK(x) is also being used
-#                for x in already_given: 
-#                    value = value<<8 + modelrom[m][x]
- #               seen[i].add( value )
+        for var,name in model[m].items():
+            # Presume PEEK(x) is also being used
+            value = rom[name][i]
+            for x in already_given: 
+                value = value<<8 + rom[name][x]
             if i in modelrom[m]:
-                modelrom[m][i].append( rom[name][i] )
+                modelrom[m][i].append( value )
             else:
-                modelrom[m][i] = [ rom[name][i] ]
+                modelrom[m][i] = [ value ]
 
     # Keep only one of the ROM variants.
 #    x = list(model[m].keys())[0]
@@ -219,13 +184,121 @@ for i in range(32768):
 #    distinguish two of the most common Model-Ts: the TRS-80 Model 100
 #    and the Tandy 102.
 
-#    PEEK(21358)
-#           9        Tandy_200+M15
-#          35        Olivetti_M10_Eur
-#          83        Tandy_102_us / TRS-80_Model_100
-#          96        Tandy_102_uk
-#         101        NEC_PC-8201+A  / NEC_PC-8201+Japan
-#         123        Televerket_Modell_100
-#         194        Kyocera_Kyotronic_85
-#         205        Olivetti_M10_North_America
-#         235        NEC_PC-8300
+# 5. What PEEK can tell me the date format is?
+
+#    Grouping ROMs by date order (MMDDYY, DDMMYY, YYMMDD), 
+#    this program shows a single PEEK suffices.
+
+#    | PEEK(6468)  | Mnemonic | Format |
+#    |-------------|----------|--------|
+#    | 5           | < 64     | YYMMDD |
+#    | 25, 74, 110 | All else | DDMMYY |
+#    | 154, 200    | > 128    | MMDDYY |
+
+    # PEEK   (6468)
+    #            5    YYMMDD+8201
+    #            5    YYMMDD+8201A
+    #            5    YYMMDD+8201A_y2k
+    #            5    YYMMDD+8300
+    #            5    YYMMDD+8300_y2k
+    #           25    DDMMYY+m100_no
+    #           25    DDMMYY+m100_uk
+    #           25    DDMMYY+m100_uk_y2k
+    #           25    DDMMYY+t102_uk
+    #           25    DDMMYY+t102_uk_y2k
+    #           74    DDMMYY+librom
+    #          110    DDMMYY+k85
+    #          110    DDMMYY+k85_y2k
+    #          110    DDMMYY+m10eu
+    #          110    DDMMYY+m10eu_y2k
+    #          154    MMDDYY+m100
+    #          154    MMDDYY+m100_y2k
+    #          154    MMDDYY+t102
+    #          154    MMDDYY+t102_y2k
+    #          200    MMDDYY+t200
+    #          200    MMDDYY+t200_y2k
+     
+# Here's a chart showing the values for the PEEKs I recommend. 
+
+# PEEK    (1)  (21358)  (6468)
+
+#        *35      35     110    Olivetti_M10_eu+orig
+#        *35      35     110    Olivetti_M10_eu+y2k
+
+#         51     *83     154    TRS-80_Model_100+REX_y2k
+#         51     *83     154    TRS-80_Model_100+orig
+#         51     *83     154    TRS-80_Model_100+y2k
+
+#         51    *205      74    TRS-80_Model_100+LibROM-1.1a
+
+#       *125     205     218    Olivetti_M10_na+orig
+#       *125     205     218    Olivetti_M10_na+y2k
+
+#        148     101       5    NEC_PC-8201+A_REX_y2k
+#        148     101       5    NEC_PC-8201+A_orig
+#        148     101       5    NEC_PC-8201+A_y2k
+#        148     101       5    NEC_PC-8201+A_y2k_VirT
+
+#        148     101       5    NEC_PC-8201+jp_orig
+
+#        148    *235       5    NEC_PC-8300+orig
+#        148    *235       5    NEC_PC-8300+y2k
+#        148    *235       5    NEC_PC-8300+y2k_VirT
+
+#        167      83     *25    TRS-80_Model_100_uk+orig
+#        167      83     *25    TRS-80_Model_100_uk+y2k
+
+#        167      83    *154    Tandy_102+REX_y2k
+#        167      83    *154    Tandy_102+orig
+#        167      83    *154    Tandy_102+y2k
+
+#        167     *96      25    Tandy_102_uk+orig
+#        167     *96      25    Tandy_102_uk+y2k
+
+#        167    *123      25    Televerket_Modell_100+orig
+
+#       *171       9     200    Tandy_200+M15_REX_y2k
+#       *171       9     200    Tandy_200+M15_orig
+#       *171       9     200    Tandy_200+M15_y2k
+
+#       *225     194     110    Kyocera_Kyotronic_85+orig
+#       *225     194     110    Kyocera_Kyotronic_85+y2k
+
+
+# Note that the above does not discern between the PC-8201 and
+# PC-8201A which are distinct machines. PEEK(31444) solves that as it
+# returns 126 for the PC-8201 (Japanese) and 37 for the PC-8201A and
+# PC-8300A (English).
+
+# Note that if PEEK(31444) is added in, PEEK(1) is not needed.
+
+# PEEK  (21358)  (6468) (31444)
+#            9     200     244    Tandy_200+M15_REX_y2k
+#            9     200     244    Tandy_200+M15_orig
+#            9     200     244    Tandy_200+M15_y2k
+#           35     110      33    Olivetti_M10_eu+orig
+#           35     110      33    Olivetti_M10_eu+y2k
+#           83      25     127    TRS-80_Model_100_uk+orig
+#           83      25     127    TRS-80_Model_100_uk+y2k
+#           83     154      82    TRS-80_Model_100+REX_y2k
+#           83     154      82    TRS-80_Model_100+orig
+#           83     154      82    TRS-80_Model_100+y2k
+#           83     154     127    Tandy_102+REX_y2k
+#           83     154     127    Tandy_102+orig
+#           83     154     127    Tandy_102+y2k
+#           96      25     127    Tandy_102_uk+orig
+#           96      25     127    Tandy_102_uk+y2k
+#          101       5      37    NEC_PC-8201_A+REX_y2k
+#          101       5      37    NEC_PC-8201_A+orig
+#          101       5      37    NEC_PC-8201_A+y2k
+#          101       5      37    NEC_PC-8201_A+y2k_VirT
+#          101       5     126    NEC_PC-8201+jp_orig
+#          123      25     127    Televerket_Modell_100+orig
+#          194     110     255    Kyocera_Kyotronic_85+orig
+#          194     110     255    Kyocera_Kyotronic_85+y2k
+#          205      74      82    TRS-80_Model_100+LibROM-1.1a
+#          205     218     124    Olivetti_M10_na+orig
+#          205     218     124    Olivetti_M10_na+y2k
+#          235       5      37    NEC_PC-8300+orig
+#          235       5      37    NEC_PC-8300+y2k
+#          235       5      37    NEC_PC-8300+y2k_VirT
