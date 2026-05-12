@@ -11,14 +11,14 @@
 # set of ROMs hackerb9 has collected (so far).
 # PEEK(21333) and PEEK(31444) are memorable and mostly work.
 
-# Grouping ROMs by date order (MMDDYY, DDMMYY, YYMMDD), shows that (so
-# far) a single PEEK would suffice. For example:
+# Grouping ROMs by date order (MMDDYY, DDMMYY, YYMMDD), 
+# a single PEEK would suffice. For example:
 
-# |   PEEK(6468)	| FORMAT |
-# |---------------------|--------|
-# | 	5		| YYMMDD |
-# | 	25, 74, 110	| DDMMYY |
-# | 	154, 200	| MMDDYY |
+  # | PEEK(6468)  | Mnemonic | Format |
+  # |-------------|----------|--------|
+  # | 5           | < 64     | YYMMDD |
+  # | 25, 74, 110 | All else | DDMMYY |
+  # | 154, 200    | > 128    | MMDDYY |
 
     # PEEK   (6468)
     #            5    YYMMDD+8201
@@ -42,7 +42,6 @@
     #          154    MMDDYY+t102_y2k
     #          200    MMDDYY+t200
     #          200    MMDDYY+t200_y2k
-
 
 from glob import glob as glob
 from collections import defaultdict
