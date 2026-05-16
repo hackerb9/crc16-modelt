@@ -55,7 +55,7 @@ adjunct/extrasums.txt:
 	touch adjunct/extrasums.txt
 
 adjunct/rollingchecksum:
-	gcc -Wall adjunct/rollingchecksum.c -lmd
+	gcc -Wall -g -o $@ adjunct/rollingchecksum.c -lmd
 
 
 .PHONY: sanity
