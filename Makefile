@@ -1,6 +1,7 @@
 all:  	CRCBYTE.CO CRCBIT.CO CRCPSH.CO CRC16.CO CRC16.DO
 all:	GENCRC.CO
 all: 	crc16 table.md sanity
+all:	adjunct/rollingchecksum
 
 # ORG is the address where the programs are assembled to load.
 # * Can't be too low or 8K machines can't load the file. (About 59500 minimum).
@@ -52,6 +53,9 @@ crctable.asm: mkcrctable.awk crc16 ROMs/* ROMs/ adjunct/extrasums.txt
 
 adjunct/extrasums.txt:
 	touch adjunct/extrasums.txt
+
+adjunct/rollingchecksum:
+	gcc -Wall adjunct/rollingchecksum.c -lmd
 
 
 .PHONY: sanity
