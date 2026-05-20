@@ -1,7 +1,21 @@
 // A quick metric of how similar two binary blobs are.
 // Compile with gcc rollingchecksum.c -o rollingchecksum -lmd
-
 // Requires libmd for SHA hashing and uthash.h for hash table.
+
+
+// Note that this metric is *not* symmetric by default. For example,
+// The PC-8300 ROM file is four times as large as the PC-8201, so
+// looking for PC-8300's blocks within the PC-8201 ROM finds a 42%
+// match, but looking for PC-8201's blocks within PC-8300 yields 87%!
+//
+// Even if two files are the same size, a rolling checksum is
+// calculated for every byte address of file A, but file B is split
+// into non-overlapping blocks. 
+//
+// If a symmetric metric is required, use the `-s` option to treat
+// both files as the same size and calculate a rolling checksum for
+// file B, as well.
+
 
 // Based on the algorithm presented by Tridgell and Mackerras.
 //     https://jhpce.jhu.edu/files/rsync/
@@ -23,10 +37,13 @@
 #include <assert.h>		/* assert() */
 #include <uthash.h>		/* UT Hash table implementation */
 #include <sha1.h>		/* The "strong" hashing function. (libmd) */
+#include <md5.h>		/* Another "strong" hashing function. (libmd) */
 
 auto blksz=320;			/* Block size to compare, in bytes (default) */
 
-auto rollflag=false;		/* Roll file B instead of splitting it? */
+auto rollbflag=false;		/* Roll file B instead of splitting it? */
+auto symflag=false;		/* Symmetric metric by enabling rollbflag and
+				   only comparing up to the smaller filesize */
 auto verbose=false;
 
 struct map {
@@ -74,7 +91,7 @@ void cleanup() {
   if (B.fd!=-1) close(B.fd); 
 }
 
-uint32_t a(uint8_t *X, int k, int l) {
+inline uint32_t a(uint8_t *X, int k, int l) {
   uint16_t sum=0;
   for (int i=k; i<=l; i++) {
     sum += X[i];
@@ -82,7 +99,7 @@ uint32_t a(uint8_t *X, int k, int l) {
   return sum;
 }
 
-uint32_t b(uint8_t *X, int k, int l) {
+inline uint32_t b(uint8_t *X, int k, int l) {
   uint16_t sum=0;
   for (int i=k; i<=l; i++) {
     sum += (l-i+1)*X[i];
@@ -91,13 +108,14 @@ uint32_t b(uint8_t *X, int k, int l) {
 }
 
 static uint32_t preva, prevb, prevk=-999;
-uint32_t
+
+inline uint32_t
 weak_checksum(uint8_t *X, int k, int l) {
   preva=a(X,k,l); prevb=b(X,k,l); prevk=k;
   return preva + (prevb<<16);
 }
 
-uint32_t
+inline uint32_t
 weak_checksum_next(uint8_t *X, int k, int l) {
   /* Initial block? */
   if (k != prevk+1) return weak_checksum(X, k, l); 
@@ -110,9 +128,9 @@ weak_checksum_next(uint8_t *X, int k, int l) {
 }
 
 
-char *
+inline char *
 strong_checksum(uint8_t *X, int k, int l) {
-  return SHA1Data(X+k, l-k+1, NULL); /* Note: this mallocs a string. */
+  return MD5Data(X+k, l-k+1, NULL); /* Note: this mallocs a string. */
 }
 
 void
@@ -121,7 +139,7 @@ calculate_B_split(struct map *m, int blksz) {
   /* Insert checksums into the hash table. */
 
   int increment = blksz;	/*    Split the standard rsync way, */
-  if (rollflag) 
+  if (rollbflag) 
     increment = 1;		/* or Start at every byte address.  */
 
   auto len = m->length;
@@ -193,23 +211,34 @@ main(int argc, char *argv[]) {
       {"block-size",     required_argument, 0,  'B' },
       {"roll-file-b",    no_argument,       0,  'r' },
       {"no-roll-file-b", no_argument,       0,  'R' },
-      {0,         	 0,                 0,  0 }
+      {"symmetric", 	 no_argument,       0,  's' },
+      {"no-symmetric", 	 no_argument,       0,  'S' },
+      {0,         	 0,                 0,   0  }
     };
 
-    auto c = getopt_long(argc, argv, "B:Rr", long_options, &option_index);
+    auto c = getopt_long(argc, argv, "B:RrSs", long_options, &option_index);
     if (c == -1)
       break;
     switch (c) {
-    case 'r':
-      rollflag = true;
-      break;
-
-    case 'R':
-      rollflag = false;
-      break;
-
     case 'B':
       blksz = atoi(optarg);
+      break;
+
+    case 'r':
+      rollbflag = true;
+      break;
+    case 'R':
+      rollbflag = false;
+      symflag = false;
+      break;
+
+    case 's':
+      rollbflag = true;
+      symflag = true;
+      break;
+    case 'S':
+      rollbflag = false;
+      symflag = false;
       break;
 
     case '?':
@@ -231,6 +260,12 @@ main(int argc, char *argv[]) {
   mapfile(&A);
   mapfile(&B);
   atexit(cleanup);
+
+  // --symmetric flag given? Pretend both files are the same size.
+  if ( symflag ) {
+    A.length = MIN( A.length, B.length );
+    B.length = MIN( A.length, B.length );
+  }
 
   /* Initialization */
   calculate_B_split(&B, blksz);
@@ -282,8 +317,8 @@ main(int argc, char *argv[]) {
 /* Initialization: β calculates weak and strong checksums of
  * non-overlapping blocks of size S in file B. (S between 500 to 1000
  * bytes is "quite good for most purposes"). Last block can be short.
- * "Weak checksum" is the algorithm shown above. "Strong" can be MD5
- * or anything. β sends list of checksums to α.
+ * "Weak checksum" is the algorithm shown above. "Strong" can be MD5,
+ * SHA-1 or what-have-you. β sends list of checksums to α.
  */ 
 
 /* Once α has received the list of checksums of the blocks of B, it must
