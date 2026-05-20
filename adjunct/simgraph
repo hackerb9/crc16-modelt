@@ -1,0 +1,161 @@
+#!/bin/bash
+
+# Compares all pairwise permutations of the original Model-T ROMs
+# using rollingchecksum.c to determine how much of the same code they
+# share. Writes a Graphviz file to standard output.
+
+blksz=320
+
+cat <<EOF
+graph { 
+  layout=neato;
+  root="TRS_80_Model_100";
+  epsilon=0.001;
+  fontsize=24;
+  fontname="Sans";
+  label="\nModel-T ROM Similarity\n(comparing blocks of $blksz bytes)";
+  bgcolor=white;
+  margin=.5;
+  splines=true;
+  edge [fontsize=12, fontname=sans];
+  node [regular=true, width=1, fixedsize=true, fontname="Sans", fontsize=12];
+EOF
+
+
+cat<<EOF
+  subgraph clusterKYO {
+    label = "";
+    penwidth=50;
+    color=LavenderBlush;		/* border */
+    bgcolor = "LavenderBlush";
+    node [fillcolor=Red1; style=filled, fontcolor=white];	   	   
+
+    Kyocera_Kyotronic_85;
+    TRS_80_Model_100_uk_skl;
+    Olivetti_M10_eu;
+  }
+
+  Olivetti_M10_na [fillcolor=Red1, style=filled, fontcolor=white,
+  		   label="Olivetti\nM10 na"];
+
+  subgraph clusterT102  {				   	   
+    label = "";
+    penwidth=50;
+    color=aliceblue;		/* border */
+    bgcolor = "aliceblue";
+    node [fillcolor=dodgerblue, fontcolor=white; style=filled];	   	   
+    Tandy_102_uk;
+    Tandy_102;
+    TRS_80_Model_100;
+    TRS_80_Model_100_uk;
+    Televerket_Modell_100;
+  }
+
+  subgraph clusterNEC {				   	   
+    label = "";
+    penwidth=50;
+    color=honeydew;		/* border */
+    bgcolor = "honeydew";
+    node [fillcolor=forestgreen, fontcolor=white, style=filled];	   
+
+    NEC_PC_8201_jp;
+    NEC_PC_8201_A;
+    NEC_PC_8300;
+  }
+
+  Tandy_200_M15 [xlabel="", label="Tandy 200\n(M15)", fillcolor=dodgerblue, style=filled, fontcolor=white];
+
+EOF
+
+ungrotify() {
+    local ff="$1"
+    ff=${ff##*/}
+    ff=${ff%.bin}
+    ff=${ff%orig}
+    ff=${ff%+}
+    ff=${ff%_}
+    echo "$ff"
+}
+
+nodelabel() {
+    local ff="$1"
+    ff=${ff//Model_100/Model 100}
+    ff=${ff//Modell_100/Modell 100}
+    ff="${ff//_/\\n}"
+    ff="${ff//+/ }"
+    ff=$(ungrotify "$ff")
+    echo "$ff"
+}
+
+nodename() {
+    local ff="$1"
+    ff=${ff/+/_}
+    ff=${ff/-/_}
+    ff=$(ungrotify "$ff")
+    echo "$ff"
+}
+ 
+edgelabel() {
+    local sim="$1"
+    sim=$(bc <<< "scale=0; ($sim+0.5)/1")
+    echo "$sim%"
+}
+
+edgecolor() {
+    local -i w=${1%.*}
+
+    if (( w > 8 )); then 
+	w=w+5
+	w=w/10
+	echo -n "black"
+	for ((i=1; i<w; i++)); do
+	    echo -n ":gray"
+	done
+	if (( w >= 2 )); then
+	    echo -n ":black"
+	fi
+    else
+	w=$(bc -l <<< "scale=0; 80-($1*10)/1")
+	echo -n "gray$w"
+    fi
+
+}
+
+edgestyle() {
+    local -i w=${1%.*}
+
+    if (( w <= 5 )); then 
+	echo "dotted"
+    else
+	echo "solid"
+    fi
+}
+
+for f in ROMs/*orig.bin  ROMs/other/TRS-80_Model_100_uk+skl.bin; do
+    for g in ROMs/*orig.bin  ROMs/other/TRS-80_Model_100_uk+skl.bin; do 
+	echo -n . >&2
+	if [[ $f == $g ]]; then break; fi 	# Break to have A--B, not B--A
+	sim=$(adjunct/rollingchecksum  -B $blksz  $f $g)
+	len=$(bc -l <<<"scale=2; l(100-$sim)") 
+	hasoverlap=$(bc -l <<<"$sim>0")
+	if [[ $hasoverlap == 1 ]]; then
+	    flabel=$(nodelabel "$f")
+	    glabel=$(nodelabel "$g")
+	    ff=$(nodename "$f")
+	    gg=$(nodename "$g")
+	    echo "$ff [xlabel=\"\", label=\"$flabel\"];"
+	    echo "$gg [xlabel=\"\", label=\"$glabel\"];"
+	    style=$(edgestyle "$sim")
+	    style=solid;
+	    color=$(edgecolor "$sim")
+	    label=$(edgelabel "$sim")
+	    echo "$ff -- $gg [value=$sim, len=$len, label=\"$label\","\
+	    	 "color=\"$color\", style=$style];"
+	fi
+    done
+done
+
+echo "}"
+
+echo >&2
+
