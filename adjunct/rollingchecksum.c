@@ -35,9 +35,9 @@
 #include <sys/mman.h>		/* mmap() */
 #include <err.h>		/* warnx(), err() */
 #include <assert.h>		/* assert() */
-#include <uthash.h>		/* UT Hash table implementation */
 #include <sha1.h>		/* The "strong" hashing function. (libmd) */
 #include <md5.h>		/* Another "strong" hashing function. (libmd) */
+#include "uthash.h"		/* UT Hash table implementation */
 
 auto blksz=320;			/* Block size to compare, in bytes (default) */
 
@@ -91,7 +91,7 @@ void cleanup() {
   if (B.fd!=-1) close(B.fd); 
 }
 
-inline uint32_t a(uint8_t *X, int k, int l) {
+static inline uint32_t a(uint8_t *X, int k, int l) {
   uint16_t sum=0;
   for (int i=k; i<=l; i++) {
     sum += X[i];
@@ -99,7 +99,7 @@ inline uint32_t a(uint8_t *X, int k, int l) {
   return sum;
 }
 
-inline uint32_t b(uint8_t *X, int k, int l) {
+static inline uint32_t b(uint8_t *X, int k, int l) {
   uint16_t sum=0;
   for (int i=k; i<=l; i++) {
     sum += (l-i+1)*X[i];
@@ -109,13 +109,13 @@ inline uint32_t b(uint8_t *X, int k, int l) {
 
 static uint32_t preva, prevb, prevk=-999;
 
-inline uint32_t
+static inline uint32_t
 weak_checksum(uint8_t *X, int k, int l) {
   preva=a(X,k,l); prevb=b(X,k,l); prevk=k;
   return preva + (prevb<<16);
 }
 
-inline uint32_t
+static inline uint32_t
 weak_checksum_next(uint8_t *X, int k, int l) {
   /* Initial block? */
   if (k != prevk+1) return weak_checksum(X, k, l); 
@@ -128,7 +128,7 @@ weak_checksum_next(uint8_t *X, int k, int l) {
 }
 
 
-inline char *
+static inline char *
 strong_checksum(uint8_t *X, int k, int l) {
   return MD5Data(X+k, l-k+1, NULL); /* Note: this mallocs a string. */
 }
