@@ -1,4 +1,5 @@
 // A quick metric of how similar two binary blobs are.
+// Compile with gcc rollingchecksum.c -o rollingchecksum -lmd
 
 // Requires libmd for SHA hashing and uthash.h for hash table.
 
@@ -14,15 +15,19 @@
 #include <sys/stat.h>		/* fstat() */
 #include <stdio.h>		/* fprintf() */
 #include <stdint.h>		/* uint8_t */
+#include <stdlib.h>		/* exit() */
+#include <getopt.h>		/* getopt_long() */
+#include <sys/param.h>		/* MIN() */
 #include <sys/mman.h>		/* mmap() */
 #include <err.h>		/* warnx(), err() */
-#include <stdlib.h>		/* exit() */
-#include <sys/param.h>		/* MIN() */
 #include <assert.h>		/* assert() */
 #include <uthash.h>		/* UT Hash table implementation */
 #include <sha1.h>		/* The "strong" hashing function. (libmd) */
 
-auto sz=100;			/* Block size to compare, in bytes */
+auto blksz=320;			/* Block size to compare, in bytes (default) */
+
+auto rollflag=false;		/* Roll file B instead of splitting it? */
+auto verbose=false;
 
 struct map {
   char *filename;
@@ -111,12 +116,17 @@ strong_checksum(uint8_t *X, int k, int l) {
 }
 
 void
-calculate_B_split(struct map *m, int sz) {
-  /* Split file B into blocks of size sz and calculate the weak checksum */
-  /* Insert checksums into a hash table */
+calculate_B_split(struct map *m, int blksz) {
+  /* Split file B into blocks of size blksz and calculate the checksums. */
+  /* Insert checksums into the hash table. */
+
+  int increment = blksz;	/*    Split the standard rsync way, */
+  if (rollflag) 
+    increment = 1;		/* or Start at every byte address.  */
+
   auto len = m->length;
-  for (auto k=0; k < len-sz; /*k+=sz*/ k++) {
-    auto l=k+sz-1;
+  for (auto k=0; k < len-blksz; k+=increment) {
+    auto l=k+blksz-1;
     assert ( l < len );
     auto weaksum = weak_checksum(B.X, k, l);
     auto strongsum = strong_checksum(B.X, k, l);
@@ -125,14 +135,14 @@ calculate_B_split(struct map *m, int sz) {
 }
 
 int
-calculate_A_rolling(struct map *m, int sz) {
+calculate_A_rolling(struct map *m, int blksz) {
   /* Calculate rolling checksum of file A for every possible starting byte.
    * Compare the result against the table created by calculate_B_split.
    */
   int matches=0;
   auto len = m->length;
-  for (auto k=0; k < len-sz;k++) {
-    auto l=k+sz-1;
+  for (auto k=0; k < len-blksz; k++) {
+    auto l=k+blksz-1;
     assert (l < len);
     auto cksum = weak_checksum_next(m->X, k, l);
     auto s = lookup_checksum(cksum);
@@ -144,9 +154,10 @@ calculate_A_rolling(struct map *m, int sz) {
       }
       free(strongsum);
       matches++;
-      //printf("%08X%7d%7d  %08x\n", cksum, k, s->location, s->weaksum);
+      if (verbose)
+	printf("%08X%7d%7d  %08x\n", cksum, k, s->location, s->weaksum);
       /* Skip rest of block */
-      k+=sz-1;
+      k+=blksz-1;
     }
   }
   return matches;
@@ -160,31 +171,77 @@ mapfile(struct map *m) {
   if (fstat(m->fd, &sb) == -1)           /* To obtain file size */
     err(2, "fstat");
   m->length = sb.st_size;
-  if (sz >= m->length) errx(4, "File too short: %s", m->filename);
+  if (blksz >= m->length) errx(4, "File too short: %s", m->filename);
   m->X = mmap(NULL, m->length, PROT_READ, MAP_PRIVATE, m->fd, 0);
   if (m->X == MAP_FAILED)
     err(3, "mmap(%s)", m->filename);
 }
 
+void usage() {
+  printf("Usage: rollingchecksum [options] <fileA> <fileB>\n"
+	 "                       [-B|--block-size <blocksize>]"
+	 "\t(default %d bytes)\n"
+	 "                       [-r|--roll-file-b]\n"
+	 "                       [-R|--no-roll-file-b]\n", blksz);
+}
+
 int
 main(int argc, char *argv[]) {
-  if (argc<3) errx(5, "Usage: rollingchecksum <fileA> <fileB>");
-  A.filename = argv[1];
-  B.filename = argv[2];
+  for (;;) {
+    int option_index = 0;
+    static struct option long_options[] = {
+      {"block-size",     required_argument, 0,  'B' },
+      {"roll-file-b",    no_argument,       0,  'r' },
+      {"no-roll-file-b", no_argument,       0,  'R' },
+      {0,         	 0,                 0,  0 }
+    };
+
+    auto c = getopt_long(argc, argv, "B:Rr", long_options, &option_index);
+    if (c == -1)
+      break;
+    switch (c) {
+    case 'r':
+      rollflag = true;
+      break;
+
+    case 'R':
+      rollflag = false;
+      break;
+
+    case 'B':
+      blksz = atoi(optarg);
+      break;
+
+    case '?':
+      usage();
+      exit(EXIT_FAILURE);
+      break;
+
+    default:
+      printf("?? getopt returned character code 0%o ??\n", c);
+    }
+  }
+
+  if (argc-optind < 2) {
+    usage();
+    errx(5, "Error: Must specify two filenames.");
+  }
+  A.filename = argv[optind];
+  B.filename = argv[optind+1];
   mapfile(&A);
   mapfile(&B);
   atexit(cleanup);
 
   /* Initialization */
-  calculate_B_split(&B, sz);
+  calculate_B_split(&B, blksz);
 
   /* Search */
-  auto c = calculate_A_rolling(&A, sz);
+  auto c = calculate_A_rolling(&A, blksz);
 
   /* Result is percentage of bytes which matched */
-  printf("%5.2f\n", 100.0*c*sz/A.length);
+  printf("%5.2f\n", 100.0*c*blksz/A.length);
 
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
 
 
@@ -241,11 +298,10 @@ main(int argc, char *argv[]) {
  * checksums from the blocks of B) is sorted according to the 16-bit
  * hash of the 32-bit rolling checksum. 
  *
- * [Second, at each offset in the file the 32-bit rolling checksum is looked up
- * in a 16-bit hash table.]
- */
-
-/* The third level check involves calculating the strong checksum
+ * [Second, at each offset in the file the 32-bit rolling checksum is
+ * looked up in a 16-bit hash table.]
+ *
+ * The third level check involves calculating the strong checksum
  * (MD5) for the current offset in the file and comparing it with the
  * strong checksum value in the current list entry. If the two strong
  * checksums match, we assume that we have found a block of A which
