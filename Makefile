@@ -54,8 +54,8 @@ crctable.asm: mkcrctable.awk crc16 ROMs/* ROMs/ adjunct/extrasums.txt
 adjunct/extrasums.txt:
 	touch adjunct/extrasums.txt
 
-adjunct/rollingchecksum:
-	gcc -Wall -g -o $@ adjunct/rollingchecksum.c -lmd
+adjunct/rollingchecksum: adjunct/rollingchecksum.c
+	gcc -Wall -g -o $@ $+ -lmd
 
 
 .PHONY: sanity
@@ -79,5 +79,6 @@ clean:
 	rm modelt-*.lst modelt-*.bin \
 	   crc16*.bin crc16-*.lst CRC*.CO \
 	   crc16 crctable.asm \
+	   adjunct/rollingchecksum \
 	   *~ 2>/dev/null || true
 
