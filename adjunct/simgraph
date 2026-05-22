@@ -1,10 +1,37 @@
 #!/bin/bash
 
-# Compares all pairwise permutations of the original Model-T ROMs
-# using rollingchecksum.c to determine how much of the same code they
-# share. Writes a Graphviz file to standard output.
+# Compares original Model-T ROMs to determine how much of the same
+# code they share. Uses pairwise permutations of the blocks. See
+# rollingchecksum.c for algorithm details.
 
-blksz=320
+# Writes a Graphviz file to standard output. 
+
+# Usage:
+#
+# 	simgraph > foo.dot  &&  dot -Tpdf foo.dot > foo.pdf
+
+# Author: hackerb9
+
+# Bugs: 
+
+#	* Pairwise comparison calculates each block's checksum (n-1)
+#	  times when once would do.
+#	* Requires editing this script to change parameters.
+# 	* Defaults to an asymmetric similarity metric.
+#	  [compare(A, B) != compare(B, A)].
+#	* No way to toggle showing values on the edges.
+
+# blksz: Look for matching blocks of this size. (327 is about 1% of 32K bytes).
+blksz=327			
+# command: Command to calculate the percentage of similarity (0.00 to 100.00).
+command=(adjunct/rollingchecksum --block-size $blksz)
+
+# Note: Consider using rollingchecksum -s (--symmetric) which limits all
+# files to 32KB and performs a rolling checksum of the second file.
+# It is slower but allows blocks to start at any arbitrary byte
+# instead being split every $blksz. It is called "symmetric" because
+# the order in which the files are given will no longer matter.
+
 
 cat <<EOF
 graph { 
@@ -13,7 +40,7 @@ graph {
   epsilon=0.001;
   fontsize=24;
   fontname="Sans";
-  label="\nModel-T ROM Similarity\n(comparing blocks of $blksz bytes)";
+  label="\nModel-T ROM Similarity\n(${command[@]})";
   bgcolor=white;
   margin=.5;
   splines=true;
@@ -134,8 +161,8 @@ edgestyle() {
 for f in ROMs/*orig.bin  ROMs/other/TRS-80_Model_100_uk+skl.bin; do
     for g in ROMs/*orig.bin  ROMs/other/TRS-80_Model_100_uk+skl.bin; do 
 	echo -n . >&2
-	if [[ $f == $g ]]; then break; fi 	# Break to have A--B, not B--A
-	sim=$(adjunct/rollingchecksum  -B $blksz  $f $g)
+	if [[ $f == $g ]]; then break; fi 	# Break to get A--B, not B--A
+	sim=$(${command[@]}  $f $g)
 	len=$(bc -l <<<"scale=2; l(100-$sim)") 
 	hasoverlap=$(bc -l <<<"$sim>0")
 	if [[ $hasoverlap == 1 ]]; then
@@ -158,4 +185,3 @@ done
 echo "}"
 
 echo >&2
-
