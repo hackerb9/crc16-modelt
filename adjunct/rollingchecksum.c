@@ -110,15 +110,16 @@ static inline uint32_t b(uint8_t *X, int k, int l) {
 static uint32_t preva, prevb, prevk=-999;
 
 static inline uint32_t
-weak_checksum(uint8_t *X, int k, int l) {
+weak_checksum_full(uint8_t *X, int k, int l) {
   preva=a(X,k,l); prevb=b(X,k,l); prevk=k;
   return preva + (prevb<<16);
 }
 
 static inline uint32_t
-weak_checksum_next(uint8_t *X, int k, int l) {
+weak_checksum(uint8_t *X, int k, int l) {
   /* Initial block? */
-  if (k != prevk+1) return weak_checksum(X, k, l); 
+  if (k != prevk+1)
+    return weak_checksum_full(X, k, l); 
 
   /* Use the recurrence relationship to calculate next checksum */
   uint16_t a = preva - X[k-1] + X[l];
@@ -130,7 +131,7 @@ weak_checksum_next(uint8_t *X, int k, int l) {
 
 static inline char *
 strong_checksum(uint8_t *X, int k, int l) {
-  return MD5Data(X+k, l-k+1, NULL); /* Note: this mallocs a string. */
+  return SHA1Data(X+k, l-k+1, NULL); /* Note: this mallocs a string. */
 }
 
 void
@@ -162,7 +163,7 @@ calculate_A_rolling(struct map *m, int blksz) {
   for (auto k=0; k < len-blksz; k++) {
     auto l=k+blksz-1;
     assert (l < len);
-    auto cksum = weak_checksum_next(m->X, k, l);
+    auto cksum = weak_checksum(m->X, k, l);
     auto s = lookup_checksum(cksum);
     if (s != NULL) {
       auto strongsum = strong_checksum(m->X, k, l);
@@ -199,6 +200,7 @@ void usage() {
   printf("Usage: rollingchecksum [options] <fileA> <fileB>\n"
 	 "                       [-B|--block-size <blocksize>]"
 	 "\t(default %d bytes)\n"
+	 "                       [-s|--symmetric]\n"
 	 "                       [-r|--roll-file-b]\n"
 	 "                       [-R|--no-roll-file-b]\n", blksz);
 }
@@ -213,10 +215,11 @@ main(int argc, char *argv[]) {
       {"no-roll-file-b", no_argument,       0,  'R' },
       {"symmetric", 	 no_argument,       0,  's' },
       {"no-symmetric", 	 no_argument,       0,  'S' },
+      {"help", 	 	 no_argument,       0,  'h' },
       {0,         	 0,                 0,   0  }
     };
 
-    auto c = getopt_long(argc, argv, "B:RrSs", long_options, &option_index);
+    auto c = getopt_long(argc, argv, "B:RrSsh?", long_options, &option_index);
     if (c == -1)
       break;
     switch (c) {
@@ -241,9 +244,10 @@ main(int argc, char *argv[]) {
       symflag = false;
       break;
 
+    case 'h':
     case '?':
       usage();
-      exit(EXIT_FAILURE);
+      exit(EXIT_SUCCESS);
       break;
 
     default:
